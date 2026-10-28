@@ -72,3 +72,6 @@ pip-delete-this-directory.txt
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Script auxiliar de subida
+SUBIR_A_GITHUB.bat
