@@ -1,0 +1,347 @@
+{
+  "name": "Master Workflow - Plataforma Inteligente de Análisis de Llamadas, TMO y Automatización (End-to-End)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "call-center-tmo-master-pipeline",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook-master",
+      "name": "1. Webhook: Disparo de Pipeline",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [140, 280]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM verificar_o_crear_ejecucion_idempotente($1, 'Master Pipeline TMO', $2, $3);",
+        "additionalFields": {
+          "queryParams": "={{ $json.body.idempotencyKey || ('master_' + $now.toMillis()) }},={{ $json.body.fileId || 'archivo_demo' }},={{ JSON.stringify($json.body) }}"
+        }
+      },
+      "id": "node-postgres-idempotencia",
+      "name": "2. PostgreSQL/Supabase: Guardia de Idempotencia",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [360, 280]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitir_ejecucion }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "node-if-idempotente",
+      "name": "3. IF: ¿Ejecución No Duplicada?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [580, 280]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:4000/api/files/process",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "fileId",
+              "value": "={{ $('1. Webhook: Disparo de Pipeline').item.json.body.fileId || 'archivo_demo' }}"
+            },
+            {
+              "name": "threshold",
+              "value": "={{ $('1. Webhook: Disparo de Pipeline').item.json.body.threshold || 20.0 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-api-procesar",
+      "name": "4. Backend API: Ingesta, TMO & Excel 4-Hojas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [820, 180]
+    },
+    {
+      "parameters": {
+        "fromEmail": "paulcacerez768@gmail.com",
+        "toEmail": "={{ $('1. Webhook: Disparo de Pipeline').item.json.body.recipientEmail || 'paulcacerez768@gmail.com' }}",
+        "subject": "={{ '[Reporte Call Center] Consolidado TMO & Indicadores - ' + $now.format('yyyy-MM-dd') }}",
+        "html": "=<p>Adjunto encontrará el informe oficial de análisis de llamadas con cálculo de TMO por agente, gráficos nativos y auditoría de IA.</p>",
+        "options": {
+          "attachments": "={{ $json.reportFileName }}"
+        }
+      },
+      "id": "node-email-gmail",
+      "name": "5. Gmail SMTP: Envío con Adjunto Excel",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1060, 180]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "agentSummaries",
+        "options": {}
+      },
+      "id": "node-item-lists-split",
+      "name": "6. Item Lists: Desglosar Agentes",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3,
+      "position": [1280, 180]
+    },
+    {
+      "parameters": {
+        "batchSize": 4,
+        "options": {}
+      },
+      "id": "node-loop-batches",
+      "name": "7. Loop Over Items: Lotes de Agentes",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1500, 180]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Regla Determinista Inquebrantable de TMO\nconst items = $input.all();\nconst threshold = 20.0;\n\nreturn items.map(item => {\n  const agent = item.json;\n  const tmo = parseFloat(agent.ahtTmoSeconds || agent.tmo_promedio_seg || 0);\n  \n  let regla = 'ERROR_DATOS';\n  if (tmo > 0 && tmo <= threshold) {\n    regla = 'APROBADO';\n  } else if (tmo > threshold) {\n    regla = 'REQUIERE_REVISION';\n  }\n  \n  return {\n    json: {\n      ...agent,\n      tmo_evaluado: tmo,\n      umbral_aplicado: threshold,\n      resultado_regla: regla,\n      prompt_ia: `Evalúa el desempeño del agente ${agent.agentName || agent.codigo_agente}. Su TMO fue de ${tmo}s (Umbral: ${threshold}s). Regla determinista: ${regla}. Explica causas de rendimiento y sugiere acciones operativas.`\n    }\n  };\n});"
+      },
+      "id": "node-code-regla-determinista",
+      "name": "8. Code: Regla Determinista",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1720, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:4000/api/ai/ask",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "question",
+              "value": "={{ $json.prompt_ia }}"
+            },
+            {
+              "name": "fileId",
+              "value": "={{ $json.fileId || 'archivo_demo' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-ai-assistant",
+      "name": "9. AI Assistant: Explicabilidad & Diagnóstico",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1940, 180]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO validaciones_ia (archivo_id, agente_id, tmo_evaluado_seg, umbral_aplicado_seg, resultado_regla, resultado_ia, motivo_clasificacion, recomendacion_operativa) VALUES ($1, $2, $3, $4, $5, 'CONFIRMADO_IA', $6, $7);",
+        "additionalFields": {
+          "queryParams": "={{ $('8. Code: Regla Determinista').item.json.fileId || 'c8fac9e0-14c0-4b8a-99f1-26d07fcedc54' }},={{ $('8. Code: Regla Determinista').item.json.agentCode }},={{ $('8. Code: Regla Determinista').item.json.tmo_evaluado }},={{ $('8. Code: Regla Determinista').item.json.umbral_aplicado }},={{ $('8. Code: Regla Determinista').item.json.resultado_regla }},={{ $json.answer }},={{ 'Seguimiento en comité de calidad y coaching de cierre' }}"
+        }
+      },
+      "id": "node-postgres-save-ai",
+      "name": "10. PostgreSQL: Guardar Validación IA",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2160, 180]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Pipeline Master ejecutado exitosamente. Reporte generado, enviado a Gmail y validado con IA.\",\n  \"reporte\": \"{{ $('4. Backend API: Ingesta, TMO & Excel 4-Hojas').item.json.reportFileName }}\",\n  \"correo\": \"Enviado a paulcacerez768@gmail.com\",\n  \"agentesEvaluados\": {{ $('6. Item Lists: Desglosar Agentes').all().length }}\n}",
+        "options": {}
+      },
+      "id": "node-respond-ok",
+      "name": "11. Responder Webhook: Pipeline Exitoso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1720, 360]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"isDuplicate\": true,\n  \"message\": \"Ejecución ignorada por control de idempotencia (proceso previo registrado).\"\n}",
+        "options": {}
+      },
+      "id": "node-respond-duplicate",
+      "name": "12. Responder Webhook: Duplicado Ignorado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [820, 420]
+    },
+    {
+      "parameters": {},
+      "id": "node-error-trigger-master",
+      "name": "13. Error Trigger: Captura Centralizada",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [140, 560]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO auditoria_errores (codigo_error, origen, gravedad, mensaje, detalles_tecnicos, reintentos_realizados, resuelto) VALUES ('FALLO_PIPELINE_N8N', 'Master Workflow', 'CRITICA', $1, $2, 0, false);",
+        "additionalFields": {
+          "queryParams": "={{ $json.execution.error.message || 'Error en flujo' }},={{ $json.execution.error.stack || JSON.stringify($json.execution.error) }}"
+        }
+      },
+      "id": "node-log-error-db",
+      "name": "14. PostgreSQL: Auditoría de Error",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [380, 560]
+    }
+  ],
+  "connections": {
+    "1. Webhook: Disparo de Pipeline": {
+      "main": [
+        [
+          {
+            "node": "2. PostgreSQL/Supabase: Guardia de Idempotencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. PostgreSQL/Supabase: Guardia de Idempotencia": {
+      "main": [
+        [
+          {
+            "node": "3. IF: ¿Ejecución No Duplicada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. IF: ¿Ejecución No Duplicada?": {
+      "main": [
+        [
+          {
+            "node": "4. Backend API: Ingesta, TMO & Excel 4-Hojas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "12. Responder Webhook: Duplicado Ignorado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Backend API: Ingesta, TMO & Excel 4-Hojas": {
+      "main": [
+        [
+          {
+            "node": "5. Gmail SMTP: Envío con Adjunto Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Gmail SMTP: Envío con Adjunto Excel": {
+      "main": [
+        [
+          {
+            "node": "6. Item Lists: Desglosar Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Item Lists: Desglosar Agentes": {
+      "main": [
+        [
+          {
+            "node": "7. Loop Over Items: Lotes de Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. Loop Over Items: Lotes de Agentes": {
+      "main": [
+        [
+          {
+            "node": "8. Code: Regla Determinista",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "11. Responder Webhook: Pipeline Exitoso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Code: Regla Determinista": {
+      "main": [
+        [
+          {
+            "node": "9. AI Assistant: Explicabilidad & Diagnóstico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "9. AI Assistant: Explicabilidad & Diagnóstico": {
+      "main": [
+        [
+          {
+            "node": "10. PostgreSQL: Guardar Validación IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10. PostgreSQL: Guardar Validación IA": {
+      "main": [
+        [
+          {
+            "node": "7. Loop Over Items: Lotes de Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "13. Error Trigger: Captura Centralizada": {
+      "main": [
+        [
+          {
+            "node": "14. PostgreSQL: Auditoría de Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

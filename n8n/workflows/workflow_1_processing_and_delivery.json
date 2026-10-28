@@ -1,0 +1,222 @@
+{
+  "name": "Workflow 1 - Procesamiento de Excel, Cálculo TMO y Envío de Reporte",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tmo-workflow-1-procesar-reporte",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook-iniciar",
+      "name": "Webhook: Iniciar Procesamiento",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM verificar_o_crear_ejecucion_idempotente($1, 'Workflow 1', $2, $3);",
+        "additionalFields": {
+          "queryParams": "={{ $json.body.idempotencyKey }},={{ $json.body.fileId }},={{ JSON.stringify($json.body) }}"
+        }
+      },
+      "id": "node-check-idempotency",
+      "name": "Supabase PostgreSQL: Validar Idempotencia",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitir_ejecucion }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "node-if-permitir",
+      "name": "IF: ¿Es Ejecución Válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:4000/api/files/process",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "fileId",
+              "value": "={{ $('Webhook: Iniciar Procesamiento').item.json.body.fileId }}"
+            },
+            {
+              "name": "threshold",
+              "value": "={{ $('Webhook: Iniciar Procesamiento').item.json.body.threshold || 20 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-api-procesar-tmo",
+      "name": "Backend API: Procesar & Calcular TMO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "notificaciones@callcenter.local",
+        "toEmail": "={{ $('Webhook: Iniciar Procesamiento').item.json.body.recipientEmail || 'supervisor@callcenter.com' }}",
+        "subject": "={{ '[Reporte Call Center] Consolidado TMO & Desempeño - ' + $now.format('yyyy-MM-dd') }}",
+        "html": "=<p>Adjunto encontrará el informe de análisis de llamadas con el cálculo consolidado de TMO y gráficos generados automáticamente.</p>",
+        "options": {
+          "attachments": "reporte_tmo.xlsx"
+        }
+      },
+      "id": "node-email-send",
+      "name": "Email: Enviar Reporte Excel con Gráficos",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/tmo-workflow-2-validacion-ia",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "fileId",
+              "value": "={{ $('Webhook: Iniciar Procesamiento').item.json.body.fileId }}"
+            },
+            {
+              "name": "threshold",
+              "value": "={{ $('Webhook: Iniciar Procesamiento').item.json.body.threshold || 20 }}"
+            },
+            {
+              "name": "idempotencyKey",
+              "value": "={{ 'wf2_' + $('Webhook: Iniciar Procesamiento').item.json.body.fileId + '_' + $now.toMillis() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-disparar-wf2",
+      "name": "Webhook: Disparar Workflow 2 (Revisión IA)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Workflow 1 ejecutado exitosamente. Reporte generado y enviado por correo.\",\n  \"fileId\": \"{{ $('Webhook: Iniciar Procesamiento').item.json.body.fileId }}\",\n  \"nextWorkflow\": \"Workflow 2 IA activado\"\n}",
+        "options": {}
+      },
+      "id": "node-respond-success",
+      "name": "Responder Webhook: Éxito",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1540, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"isDuplicate\": true,\n  \"message\": \"Ejecución ignorada por control de idempotencia (ya procesada o en curso).\"\n}",
+        "options": {}
+      },
+      "id": "node-respond-duplicate",
+      "name": "Responder Webhook: Duplicado Ignorado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [860, 420]
+    }
+  ],
+  "connections": {
+    "Webhook: Iniciar Procesamiento": {
+      "main": [
+        [
+          {
+            "node": "Supabase PostgreSQL: Validar Idempotencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase PostgreSQL: Validar Idempotencia": {
+      "main": [
+        [
+          {
+            "node": "IF: ¿Es Ejecución Válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: ¿Es Ejecución Válida?": {
+      "main": [
+        [
+          {
+            "node": "Backend API: Procesar & Calcular TMO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder Webhook: Duplicado Ignorado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Backend API: Procesar & Calcular TMO": {
+      "main": [
+        [
+          {
+            "node": "Email: Enviar Reporte Excel con Gráficos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email: Enviar Reporte Excel con Gráficos": {
+      "main": [
+        [
+          {
+            "node": "Webhook: Disparar Workflow 2 (Revisión IA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Disparar Workflow 2 (Revisión IA)": {
+      "main": [
+        [
+          {
+            "node": "Responder Webhook: Éxito",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

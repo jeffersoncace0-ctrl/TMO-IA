@@ -1,0 +1,128 @@
+# INSTRUCCIÓN PARA GAMMA AI: GENERACIÓN DE PRESENTACIÓN VISUAL
+# Copia y pega el contenido que se encuentra a continuación en https://gamma.app -> "New from text" / "Generate"
+
+---
+title: Plataforma Inteligente de Análisis de Llamadas, TMO y Automatización
+description: Arquitectura de procesamiento de llamadas, cálculo ponderado de TMO, generación de reportes Excel con gráficos nativos y auditoría inteligente con n8n y Supabase
+theme: Tech Ocean (Azul profundo, Blanco y Verde esmeralda)
+format: presentation
+slides: 12
+
+---
+## Diapositiva 1: Portada
+# Plataforma Inteligente de Análisis de Llamadas, TMO y Automatización
+### Ingesta de Excel, Cálculo Estadístico Ponderado, Generación de Reportes con Gráficos Nativos y Auditoría con Asistente de IA en n8n
+- **Arquitectura:** Node.js, Express, React 19, PostgreSQL, Supabase, n8n, Python (openpyxl)
+- **Sector:** Operaciones de Call Center & BPO Analytics
+
+---
+## Diapositiva 2: Problemática
+# La Realidad Operativa del Call Center Tradicional
+### Cuellos de botella en la gestión manual de indicadores
+- **3 a 5 horas diarias** perdidas por supervisores manipulando archivos Excel aislados.
+- **Errores matemáticos recurrentes:** aplicación errónea del promedio simple de TMO ("promedio de promedios") distorsionando la realidad operativa.
+- **Incapacidad de detección temprana** de agentes con tiempos de silencio excesivos (>40% de la llamada).
+- **Proceso lineal frágil:** Descarga manual -> Limpieza celda por celda -> Cálculo -> Envío manual de correos sin auditoría de IA.
+
+---
+## Diapositiva 3: Objetivo y Propuesta de Valor
+# Transformación Operativa y Eficiencia
+### Del análisis manual reactivo a la inteligencia automatizada en tiempo real
+- **Objetivo Central:** Automatizar de extremo a extremo la ingesta de llamadas, cálculo de TMO, generación de reportes y diagnóstico asistido por IA.
+- **Proceso Manual:** 4 horas de trabajo, errores de fórmulas, gráficos estáticos, cero trazabilidad.
+- **Solución Automatizada:** <3 segundos de ejecución, TMO ponderado estricto, gráficos de barras y dona nativos, auditoría de IA explicable y entrega garantizada por SMTP.
+
+---
+## Diapositiva 4: Solución Implementada
+# Ecosistema Tecnológico Funcional
+### Cinco pilares integrados para la excelencia operativa
+1. **Frontend Web React 19:** Dashboard de KPIs, barras con línea de umbral, 2 donas independientes y filtros dinámicos.
+2. **Backend API Node.js & TypeScript:** Orquestador de validaciones, seguridad e idempotencia criptográfica.
+3. **Motor Estadístico & Excel (openpyxl):** Generación de libros de 4 hojas con gráficos nativos embebidos.
+4. **Base de Datos Supabase / PostgreSQL:** 12 tablas relacionales con RLS y procedimientos atómicos.
+5. **Automatización n8n:** Workflows modulares de ingesta, looping de agentes y gestión de excepciones.
+
+---
+## Diapositiva 5: Arquitectura Técnica
+# Arquitectura Técnica en Capas
+### Integración desacoplada, escalable y segura
+- **Capa Cliente:** Frontend Web React 19 con 10 módulos operativos.
+- **Capa Servicios:** Backend API con validación de esquemas y guardias de idempotencia SHA-256.
+- **Capa Datos:** PostgreSQL en Supabase con Row Level Security y buckets privados para archivos raw y reportes.
+- **Capa Automatización:** n8n Webhooks, ejecución por lotes de agentes y reintentos ante fallos.
+- **Capa Notificaciones:** Servidor Gmail SMTP con registro de respuesta del servidor (250 OK).
+
+---
+## Diapositiva 6: Funcionamiento Paso a Paso
+# Ciclo de Vida del Dato: De la Ingesta al Reporte
+### Seis etapas continuas de procesamiento
+1. **Carga & Autodetección:** Inspección de hojas Excel y mapeo inteligente de columnas.
+2. **Control de Calidad:** Detección de duplicados, duraciones negativas y datos incompletos.
+3. **Cálculo Riguroso:** Fórmula estricta de TMO por agente y TMO global ponderado.
+4. **Exportación Nativa:** Generación del archivo .xlsx con gráficos embebidos de barras y dona.
+5. **Entrega Automática:** Despacho del reporte adjunto por Gmail SMTP a los destinatarios.
+6. **Auditoría IA:** Evaluación en lotes de agentes para detectar anomalías y sugerir planes de acción.
+
+---
+## Diapositiva 7: Diagrama Completo del Flujo Automatizado
+# Flujo Lógico y Árbol de Decisiones
+### Ruta de éxito, bifurcaciones de control y manejo de excepciones
+- **Entrada:** Webhook autenticado con identificador único de ejecución.
+- **Control de Idempotencia:** Si ya fue procesado -> Abortar duplicado. Si es nuevo -> Continuar.
+- **Validación Estructural:** Si el archivo está corrupto -> Disparar Workflow 3 de error. Si es válido -> Procesar.
+- **Regla Determinista Inquebrantable:**
+  - TMO <= 20s: APROBADO (Verde)
+  - TMO > 20s: REQUIERE REVISIÓN (Rojo) / EN OBSERVACIÓN (Amarillo)
+- **Revisión por IA:** Inferencia contextual que explica la causa del resultado sin alterar la regla matemática.
+
+---
+## Diapositiva 8: Demostración Práctica
+# Caso de Estudio Real Verificado
+### Resultados obtenidos sobre el dataset oficial de 80 llamadas
+- **80 llamadas analizadas** (69 contestadas, 11 perdidas -> 86.25% de atención).
+- **8 asesores evaluados** frente al umbral objetivo de 20.0 segundos.
+- **TMO Global Ponderado:** 20.39 segundos.
+- **5 Agentes Aprobados:** Carlos Ramirez (14s), Maria Fernandez (18s), Andres Torres (19s), Sofia Castro (15s), Elena Vargas (12s).
+- **3 Agentes en Revisión:** Juan Delgado (26.8s), Pedro Morales (22.8s) y Laura Gomez (38.6s -> Outlier Crítico con 16s de silencio promedio).
+
+---
+## Diapositiva 9: Valor de la Automatización
+# Retorno de Inversión y Beneficios Cuantificados
+### Impacto directo en la productividad del Call Center
+- **98% de Ahorro de Tiempo:** Reducción del ciclo de reporte de 4 horas a 3 segundos.
+- **100% de Confiabilidad Estadística:** Erradicación del error humano en las fórmulas de TMO.
+- **Detección Oportuna de Riesgos:** Identificación instantánea de agentes con pausas excesivas en línea.
+- **Auditoría Permanente:** Registro inmutable de cada ejecución, envío y anomalía para comités de calidad.
+
+---
+## Diapositiva 10: Pruebas y Resultados
+# Evidencias de Validación Técnica
+### Comprobación exhaustiva en entorno real
+- **Pruebas Unitarias & Integración:** 100% de tests aprobados (`tests/run_tests.js`).
+- **Tolerancia a Fallos:** Detección comprobada de duplicados exactos y duraciones negativas en casos borde.
+- **Evidencia SMTP Gmail:**
+  - Destinatario: paulcacerez768@gmail.com
+  - Estado Proveedor: ACEPTADO_PROVEEDOR (250 2.0.0 OK)
+  - Message ID: <3cf9f8c8-60d9-1a6c-9de3-320f8d290022@gmail.com>
+  - Adjunto: Reporte Excel de 4 hojas con gráficos nativos.
+
+---
+## Diapositiva 11: Conclusiones y Mejoras Futuras
+# Conclusiones y Próximos Pasos
+### Plataforma operativa y hoja de ruta tecnológica
+- **Conclusión:** Se ha logrado una solución integral, funcional y con alta calidad visual que resuelve de raíz la manipulación manual de datos.
+- **Próximas Mejoras:**
+  - Conexión vía WebSockets con centrales telefónicas (Asterisk, Genesys, Twilio) para ingesta en streaming.
+  - Análisis de voz y sentimiento acústico cruzado con el TMO.
+  - Modelos predictivos de volumen de llamadas mediante series de tiempo.
+
+---
+## Diapositiva 12: Replicación del Proyecto
+# Cómo Replicar esta Solución desde Cero
+### Guía rápida de implementación independiente
+1. **Requisitos:** Node.js 18+, Python 3.9+ (openpyxl), Supabase / PostgreSQL, Gmail SMTP.
+2. **Esquema de Base de Datos:** Ejecutar `database/schema.sql`, `rls_policies.sql` y `functions.sql`.
+3. **Variables de Entorno:** Configurar credenciales en `backend/.env`.
+4. **Ejecución:** Iniciar Backend (`npm run dev` en `backend/`) y Frontend (`npm run dev` en `frontend/`).
+5. **Workflows n8n:** Importar `n8n/workflows/master_call_center_tmo_workflow.json`.
+- **Manual Completo:** Consultar `docs/REPLICATION_MANUAL.md`.

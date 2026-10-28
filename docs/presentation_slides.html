@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentación Ejecutiva - Plataforma TMO & Automatización</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .slide { display: none; }
+    .slide.active { display: flex; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-6 md:p-12">
+
+  <!-- Encabezado de Diapositiva -->
+  <header class="flex items-center justify-between border-b border-slate-800 pb-4">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xs">
+        TMO
+      </div>
+      <div>
+        <h1 class="text-sm font-bold text-slate-200">Plataforma de Análisis de Llamadas & Automatización</h1>
+        <p class="text-xs text-slate-400">Presentación Técnica y Ejecutiva (Estructura Gamma AI)</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-xs font-mono bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+      <span id="slide-indicator" class="text-blue-400 font-bold">1 / 12</span>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de Diapositivas -->
+  <main class="flex-1 flex items-center justify-center my-6">
+
+    <!-- Diapositiva 1: Portada -->
+    <div class="slide active flex-col items-center justify-center text-center max-w-4xl space-y-6">
+      <span class="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full text-xs font-semibold uppercase tracking-wider">
+        Automatización Operativa con n8n, Supabase e IA
+      </span>
+      <h2 class="text-3xl md:text-5xl font-extrabold text-white leading-tight">
+        Plataforma Inteligente de Análisis de Llamadas, TMO y Automatización
+      </h2>
+      <p class="text-base md:text-lg text-slate-300 max-w-2xl">
+        Ingesta masiva de Excel, cálculo matemático riguroso de TMO, reportes con gráficos nativos y auditoría inteligente de rendimiento para Call Centers.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-4 text-xs font-mono text-slate-400">
+        <span class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">Node.js / TypeScript</span>
+        <span class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">React 19 / Tailwind</span>
+        <span class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">n8n Workflows</span>
+        <span class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">PostgreSQL / Supabase</span>
+        <span class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">Python openpyxl</span>
+      </div>
+    </div>
+
+    <!-- Diapositiva 2: Problemática -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">Diapositiva 2 • Problemática</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">La Realidad Operativa del Call Center Tradicional</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-2">
+          <strong class="text-rose-400 text-sm block font-semibold">3 a 5 Horas Diarias Perdidas</strong>
+          <p class="text-slate-300">Supervisores consolidando manualmente hojas de cálculo dispersas descargadas de múltiples PBX.</p>
+        </div>
+        <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-2">
+          <strong class="text-amber-400 text-sm block font-semibold">Falacia Matemática del TMO</strong>
+          <p class="text-slate-300">Cálculo erróneo de promedios simples de agentes, ignorando la ponderación por volumen real de llamadas.</p>
+        </div>
+        <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-2">
+          <strong class="text-blue-400 text-sm block font-semibold">Pérdida de Trazabilidad</strong>
+          <p class="text-slate-300">Revisión subjetiva y tardía que impedía detectar a tiempo silencios excesivos o abandonos críticos.</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-xs text-center text-slate-400">
+        Descarga Manual ➔ Manipulación Celda por Celda ➔ Error de Fórmula ➔ Envío Tardío sin Auditoría
+      </div>
+    </div>
+
+    <!-- Diapositiva 3: Objetivo y Propuesta de Valor -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Diapositiva 3 • Propuesta de Valor</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Del Análisis Manual a la Automatización End-to-End</h2>
+      <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden text-xs">
+        <table class="w-full text-left">
+          <thead class="bg-slate-800 text-slate-300 uppercase font-semibold">
+            <tr>
+              <th class="p-3.5">Dimensión</th>
+              <th class="p-3.5 text-rose-300">Proceso Manual Previo</th>
+              <th class="p-3.5 text-emerald-300">Plataforma Automatizada</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300">
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Tiempo de Procesamiento</td>
+              <td class="p-3.5">4 horas por jornada</td>
+              <td class="p-3.5 font-bold text-emerald-400">&lt; 3 segundos por archivo</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Cálculo de TMO Global</td>
+              <td class="p-3.5">Promedio de promedios (viciado)</td>
+              <td class="p-3.5 font-bold text-emerald-400">Ponderado exacto por llamadas válidas</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Generación de Gráficos</td>
+              <td class="p-3.5">Diseño manual repetitivo</td>
+              <td class="p-3.5 font-bold text-emerald-400">Nativos embebidos en el .XLSX</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Diagnóstico de Rendimiento</td>
+              <td class="p-3.5">Opiniones subjetivas</td>
+              <td class="p-3.5 font-bold text-emerald-400">Regla determinista + IA explicable</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diapositiva 4: Solución Implementada -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Diapositiva 4 • Solución Implementada</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Ecosistema Tecnológico Integrado</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1.5">
+          <span class="text-blue-400 font-bold block">1. Frontend Web (React 19)</span>
+          <p class="text-slate-300">10 secciones interactivas: KPIs en tiempo real, gráficos con línea de umbral objetivo y 2 gráficos de dona independientes.</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1.5">
+          <span class="text-indigo-400 font-bold block">2. Backend API & Idempotencia</span>
+          <p class="text-slate-300">Node.js con Express y TypeScript, protección criptográfica SHA-256 contra reintentos accidentales.</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1.5">
+          <span class="text-emerald-400 font-bold block">3. Reportes Excel de 4 Hojas</span>
+          <p class="text-slate-300">Motor Python openpyxl que inserta gráficos nativos de barras y dona dentro del libro generado.</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1.5">
+          <span class="text-amber-400 font-bold block">4. Workflows n8n & Asistente IA</span>
+          <p class="text-slate-300">Automatización modular con looping por lotes de agentes, auditoría contextual y entrega por Gmail SMTP.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 5: Arquitectura Técnica -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Diapositiva 5 • Arquitectura Técnica</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Arquitectura en Capas y Flujo de Datos</h2>
+      <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 flex justify-center">
+        <pre class="mermaid text-xs">
+flowchart LR
+    A["Excel (.xlsx/.xls)"] --> B["Frontend Web"]
+    B --> C["Backend API Gateway"]
+    C --> D[("Supabase / PostgreSQL")]
+    C --> E["Motor Estadístico TMO"]
+    E --> F["Excel 4 Hojas (openpyxl)"]
+    C --> G["Gmail SMTP Server"]
+    C --> H["n8n Workflows"]
+    H --> I["Asistente IA"]
+        </pre>
+      </div>
+      <p class="text-xs text-slate-400 text-center">
+        Aislamiento absoluto entre datos crudos originales y resultados calculados para garantizar la integridad histórica.
+      </p>
+    </div>
+
+    <!-- Diapositiva 6: Funcionamiento Paso a Paso -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Diapositiva 6 • Proceso Secuencial</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">El Viaje del Dato en 6 Etapas</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+        <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-800">
+          <span class="font-bold text-blue-400 block mb-1">1. Carga & Detección</span>
+          <p class="text-slate-400">Inspección automática de hojas y sinónimos de columnas.</p>
+        </div>
+        <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-800">
+          <span class="font-bold text-blue-400 block mb-1">2. Control de Calidad</span>
+          <p class="text-slate-400">Aislamiento de duplicados y duraciones negativas.</p>
+        </div>
+        <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-800">
+          <span class="font-bold text-blue-400 block mb-1">3. Cálculo de TMO</span>
+          <p class="text-slate-400">Fórmula estricta por asesor y promedio ponderado global.</p>
+        </div>
+        <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-800">
+          <span class="font-bold text-blue-400 block mb-1">4. Generación Excel</span>
+          <p class="text-slate-400">Libro de 4 hojas con gráficos embebidos de barras y dona.</p>
+        </div>
+        <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-800">
+          <span class="font-bold text-blue-400 block mb-1">5. Envío Automático</span>
+          <p class="text-slate-400">Despacho por Gmail SMTP con trazabilidad 250 OK.</p>
+        </div>
+        <div class="bg-slate-900 p-3.5 rounded-lg border border-slate-800">
+          <span class="font-bold text-blue-400 block mb-1">6. Auditoría de IA</span>
+          <p class="text-slate-400">Detección de outliers (Z > 2) y silencios excesivos.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 7: Diagrama Completo del Flujo n8n -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">Diapositiva 7 • Orquestación n8n</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Lógica del Master Workflow en n8n</h2>
+      <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 flex justify-center">
+        <pre class="mermaid text-xs">
+flowchart TD
+    W["Webhook Inicio"] --> I{"¿Idempotente?"}
+    I -- Sí --> P["Procesar TMO"]
+    I -- No --> D["Rechazar Duplicado"]
+    P --> E["Enviar Gmail con Excel"]
+    E --> L["Loop Over Items (Agentes)"]
+    L --> R{"TMO <= 20s"}
+    R -- Sí --> A["APROBADO"]
+    R -- No --> B["REQUIERE REVISIÓN"]
+    A --> IA["Revisión & Explicación IA"]
+    B --> IA
+    IA --> S[("Guardar en Supabase")]
+        </pre>
+      </div>
+    </div>
+
+    <!-- Diapositiva 8: Demostración Práctica -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Diapositiva 8 • Caso Real Verificado</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Resultados sobre Dataset Real (80 Llamadas)</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-xs">
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <span class="text-slate-400 block">Llamadas Totales</span>
+          <strong class="text-xl text-white mt-1 block">80</strong>
+          <span class="text-[10px] text-emerald-400">86.25% Contestadas</span>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <span class="text-slate-400 block">TMO Ponderado</span>
+          <strong class="text-xl text-amber-400 mt-1 block">20.39s</strong>
+          <span class="text-[10px] text-slate-400">Umbral: 20.0s</span>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <span class="text-slate-400 block">Agentes Aprobados</span>
+          <strong class="text-xl text-emerald-400 mt-1 block">5 / 8</strong>
+          <span class="text-[10px] text-slate-400">TMO &le; 20s</span>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <span class="text-slate-400 block">En Revisión</span>
+          <strong class="text-xl text-rose-400 mt-1 block">3 / 8</strong>
+          <span class="text-[10px] text-rose-400">1 Outlier Crítico</span>
+        </div>
+      </div>
+      <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-xs text-slate-300">
+        <strong>Hallazgo Crítico de IA:</strong> La asesora Laura Gomez (TMO 38.6s) fue catalogada como <em>outlier estadístico</em> (Z-score &gt; 2.0) al presentar 16.0s de silencio promedio por llamada (41% del tiempo de gestión).
+      </div>
+    </div>
+
+    <!-- Diapositiva 9: Valor de la Automatización -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Diapositiva 9 • Beneficios Cuantificados</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Retorno de Inversión y Ganancias Operativas</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1">
+          <h4 class="font-bold text-white text-sm">Ahorro del 98% en Tiempos de Reporte</h4>
+          <p class="text-slate-300">Generación y despacho automatizado en menos de 3 segundos, liberando a los supervisores para labores pedagógicas y de coaching.</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1">
+          <h4 class="font-bold text-white text-sm">Eliminación Total de Sesgos</h4>
+          <p class="text-slate-300">La regla determinista inquebrantable garantiza equidad en las evaluaciones del equipo sin juicios subjetivos.</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1">
+          <h4 class="font-bold text-white text-sm">Detección Inmediata de Fugas de Silencio</h4>
+          <p class="text-slate-300">Identificación de cuellos de botella en la búsqueda de CRM antes de que impacten los SLAs del cliente.</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-1">
+          <h4 class="font-bold text-white text-sm">Auditoría Permanente e Inmutable</h4>
+          <p class="text-slate-300">Trazabilidad completa con registros de proveedor SMTP e historial de ejecuciones n8n.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 10: Pruebas y Resultados -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Diapositiva 10 • Evidencias Reales</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Comprobación en Entorno Real</h2>
+      <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 font-mono text-xs space-y-2 text-slate-300">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-emerald-400 font-bold">SUITE DE PRUEBAS AUTOMATIZADAS</span>
+          <span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">100% OK</span>
+        </div>
+        <p>• Test 1 (Cálculo TMO Individual & Ponderado): SUPERADO</p>
+        <p>• Test 2 (Generación Excel 4 Hojas con Gráficos): SUPERADO</p>
+        <p>• Test 3 (Detección de Casos Borde y Duplicados): SUPERADO</p>
+        <p>• Test 4 (Envío Gmail SMTP con Adjunto): SUPERADO</p>
+        <p class="text-slate-500 text-[11px] pt-2">Respuesta Servidor: 250 2.0.0 OK (Message ID: &lt;3cf9f8c8-60d9-1a6c-9de3-320f8d290022@gmail.com&gt;)</p>
+      </div>
+    </div>
+
+    <!-- Diapositiva 11: Conclusiones y Mejoras Futuras -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Diapositiva 11 • Conclusiones</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Logros y Hoja de Ruta Futura</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+          <strong class="text-emerald-400 block text-sm">Hitos Alcanzados</strong>
+          <p class="text-slate-300">Plataforma funcional y desplegada en producción local, integración verificada con PostgreSQL/Supabase, n8n y envío real por Gmail SMTP.</p>
+        </div>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+          <strong class="text-blue-400 block text-sm">Próximos Pasos de Evolución</strong>
+          <p class="text-slate-300">Conexión directa vía WebSockets con centrales telefónicas (Asterisk / Genesys) y análisis acústico de sentimiento de voz integrado al TMO.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 12: Replicación del Proyecto -->
+    <div class="slide flex-col max-w-4xl space-y-5">
+      <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Diapositiva 12 • Replicación</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-white">Guía de Replicación Rápida</h2>
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2 text-xs text-slate-300">
+        <p><strong>1. Requisitos:</strong> Node.js 18+, Python 3.9+ con openpyxl, PostgreSQL / Supabase, n8n.</p>
+        <p><strong>2. Base de Datos:</strong> Ejecutar <code>database/schema.sql</code>, <code>rls_policies.sql</code> y <code>functions.sql</code>.</p>
+        <p><strong>3. Entorno:</strong> Configurar <code>backend/.env</code> con credenciales de Supabase y SMTP.</p>
+        <p><strong>4. Workflows:</strong> Importar <code>n8n/workflows/master_call_center_tmo_workflow.json</code> en n8n.</p>
+        <p><strong>5. Iniciar:</strong> Ejecutar <code>npm run dev</code> en las carpetas <code>backend/</code> y <code>frontend/</code>.</p>
+      </div>
+      <p class="text-xs text-blue-400 text-center font-semibold">
+        Consulte el documento independiente docs/REPLICATION_MANUAL.md para el paso a paso detallado.
+      </p>
+    </div>
+
+  </main>
+
+  <!-- Barra de Navegación Inferior -->
+  <footer class="flex items-center justify-between border-t border-slate-800 pt-4">
+    <button id="prev-btn" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-xs font-semibold border border-slate-800 transition-colors">
+      ← Anterior
+    </button>
+    <span class="text-xs text-slate-500 hidden sm:inline">Use las flechas del teclado (← / →) para navegar</span>
+    <button id="next-btn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-colors">
+      Siguiente →
+    </button>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (index + slides.length) % slides.length;
+      slides[currentSlide].classList.add('active');
+      document.getElementById('slide-indicator').textContent = `${currentSlide + 1} / ${slides.length}`;
+      document.getElementById('prev-btn').disabled = currentSlide === 0;
+      document.getElementById('next-btn').textContent = currentSlide === slides.length - 1 ? 'Reiniciar ↺' : 'Siguiente →';
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => showSlide(currentSlide - 1));
+    document.getElementById('next-btn').addEventListener('click', () => showSlide(currentSlide + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') showSlide(currentSlide + 1);
+      if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+    });
+  </script>
+</body>
+</html>

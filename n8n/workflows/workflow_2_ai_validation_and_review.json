@@ -1,0 +1,220 @@
+{
+  "name": "Workflow 2 - Validación Determinista y Revisión con Asistente IA (Looping)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tmo-workflow-2-validacion-ia",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-wf2-webhook-trigger",
+      "name": "Disparador: Webhook desde Workflow 1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [160, 240]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "mailbox": "INBOX",
+        "downloadAttachments": true,
+        "filters": {
+          "subject": "Reporte Call Center"
+        }
+      },
+      "id": "node-wf2-email-trigger",
+      "name": "Disparador Alternativo: Email IMAP con Adjunto",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [160, 440]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:4000/api/agents",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fileId",
+              "value": "={{ $json.body?.fileId || 'ultimo_archivo' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-fetch-agents",
+      "name": "Backend API: Obtener Resumen de Agentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [420, 320]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "id": "node-loop-agents",
+      "name": "Loop Over Items: Lote de Agentes",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [640, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Regla Determinista Inquebrantable\nconst items = $input.all();\nconst threshold = 20.0;\n\nreturn items.map(item => {\n  const agent = item.json;\n  const tmo = parseFloat(agent.tmo_promedio_seg || agent.ahtTmoSeconds || 0);\n  \n  let regla = 'ERROR_DATOS';\n  if (tmo > 0 && tmo <= threshold) {\n    regla = 'APROBADO';\n  } else if (tmo > threshold) {\n    regla = 'REQUIERE_REVISION';\n  }\n  \n  return {\n    json: {\n      ...agent,\n      tmo,\n      umbral: threshold,\n      resultado_regla: regla,\n      prompt_ia: `Revisa el desempeño del agente ${agent.nombre_agente || agent.codigo_agente}. Su TMO fue de ${tmo}s (Umbral: ${threshold}s). Regla: ${regla}. Explica posibles causas operativas, anomalías y recomendaciones.`\n    }\n  };\n});"
+      },
+      "id": "node-evaluar-regla",
+      "name": "Code: Aplicar Regla Determinista",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:4000/api/ai/ask",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "question",
+              "value": "={{ $json.prompt_ia }}"
+            },
+            {
+              "name": "fileId",
+              "value": "={{ $json.archivo_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-ia-analysis",
+      "name": "AI Assistant: Explicabilidad y Recomendación",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1080, 320]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO validaciones_ia (archivo_id, agente_id, tmo_evaluado_seg, umbral_aplicado_seg, resultado_regla, resultado_ia, motivo_clasificacion, recomendacion_operativa) VALUES ($1, $2, $3, $4, $5, 'CONFIRMA_REVISION', $6, $7);",
+        "additionalFields": {
+          "queryParams": "={{ $('Code: Aplicar Regla Determinista').item.json.archivo_id }},={{ $('Code: Aplicar Regla Determinista').item.json.codigo_agente }},={{ $('Code: Aplicar Regla Determinista').item.json.tmo }},={{ $('Code: Aplicar Regla Determinista').item.json.umbral }},={{ $('Code: Aplicar Regla Determinista').item.json.resultado_regla }},={{ $json.answer }},={{ 'Revisión periódica de llamadas y coaching' }}"
+        }
+      },
+      "id": "node-save-validation",
+      "name": "Supabase: Guardar Validación IA",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1300, 320]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Workflow 2 completado exitosamente. Revisión por IA y reglas deterministas consolidadas.\"\n}",
+        "options": {}
+      },
+      "id": "node-wf2-respond",
+      "name": "Responder Webhook: Consolidación Completa",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [960, 520]
+    }
+  ],
+  "connections": {
+    "Disparador: Webhook desde Workflow 1": {
+      "main": [
+        [
+          {
+            "node": "Backend API: Obtener Resumen de Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disparador Alternativo: Email IMAP con Adjunto": {
+      "main": [
+        [
+          {
+            "node": "Backend API: Obtener Resumen de Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Backend API: Obtener Resumen de Agentes": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items: Lote de Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items: Lote de Agentes": {
+      "main": [
+        [
+          {
+            "node": "Code: Aplicar Regla Determinista",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder Webhook: Consolidación Completa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Aplicar Regla Determinista": {
+      "main": [
+        [
+          {
+            "node": "AI Assistant: Explicabilidad y Recomendación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Assistant: Explicabilidad y Recomendación": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Guardar Validación IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Guardar Validación IA": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items: Lote de Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "name": "Workflow 3 - Auditoría de Errores, Gestión de Excepciones y Reintentos",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-error-trigger",
+      "name": "Error Trigger: Captura de Excepciones Globales",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Clasificación inteligente de la gravedad y código de error\nconst errorData = $input.item.json.execution.error;\nconst workflowName = $input.item.json.workflow.name;\nconst executionId = $input.item.json.execution.id;\n\nlet errorCode = 'ERR_DESCONOCIDO';\nlet gravedad = 'MEDIA';\nconst msg = errorData.message || 'Error no especificado';\n\nif (msg.includes('connect') || msg.includes('timeout') || msg.includes('ECONNREFUSED')) {\n  errorCode = 'FALLO_CONEXION_SUPABASE';\n  gravedad = 'ALTA';\n} else if (msg.includes('Excel') || msg.includes('formato') || msg.includes('columna')) {\n  errorCode = 'ARCHIVO_INVALIDO_O_CORRUPTO';\n  gravedad = 'CRITICA';\n} else if (msg.includes('SMTP') || msg.includes('mail') || msg.includes('destinatario')) {\n  errorCode = 'FALLO_ENVIO_CORREO';\n  gravedad = 'MEDIA';\n} else if (msg.includes('AI') || msg.includes('Gemini') || msg.includes('quota')) {\n  errorCode = 'FALLO_PROVEEDOR_IA';\n  gravedad = 'BAJA'; // La regla determinista continúa aun sin IA\n}\n\nreturn {\n  json: {\n    executionId,\n    workflowName,\n    errorCode,\n    gravedad,\n    mensaje: msg,\n    stackTrace: errorData.stack || JSON.stringify(errorData),\n    fecha: new Date().toISOString()\n  }\n};"
+      },
+      "id": "node-classify-error",
+      "name": "Code: Clasificar Causa y Gravedad",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO auditoria_errores (codigo_error, origen, gravedad, mensaje, detalles_tecnicos, reintentos_realizados, resuelto) VALUES ($1, $2, $3, $4, $5, 0, false);",
+        "additionalFields": {
+          "queryParams": "={{ $json.errorCode }},={{ $json.workflowName }},={{ $json.gravedad }},={{ $json.mensaje }},={{ $json.stackTrace }}"
+        }
+      },
+      "id": "node-log-supabase-error",
+      "name": "Supabase: Registrar en auditoria_errores",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.gravedad }}",
+              "operation": "equals",
+              "value2": "CRITICA"
+            }
+          ]
+        }
+      },
+      "id": "node-if-critico",
+      "name": "IF: ¿Es Error Crítico?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "alertas@callcenter.local",
+        "toEmail": "admin-sistemas@callcenter.com",
+        "subject": "={{ '[ALERTA CRÍTICA n8n] ' + $('Code: Clasificar Causa y Gravedad').item.json.errorCode }}",
+        "html": "=<p>Se ha detectado un fallo crítico en la ejecución del flujo: <b>{{ $('Code: Clasificar Causa y Gravedad').item.json.workflowName }}</b></p><p>Detalle: {{ $('Code: Clasificar Causa y Gravedad').item.json.mensaje }}</p>",
+        "options": {}
+      },
+      "id": "node-alert-email",
+      "name": "Email: Notificar a Administrador",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1120, 240]
+    }
+  ],
+  "connections": {
+    "Error Trigger: Captura de Excepciones Globales": {
+      "main": [
+        [
+          {
+            "node": "Code: Clasificar Causa y Gravedad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Clasificar Causa y Gravedad": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Registrar en auditoria_errores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Registrar en auditoria_errores": {
+      "main": [
+        [
+          {
+            "node": "IF: ¿Es Error Crítico?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: ¿Es Error Crítico?": {
+      "main": [
+        [
+          {
+            "node": "Email: Notificar a Administrador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
