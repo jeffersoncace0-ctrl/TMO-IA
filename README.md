@@ -1,366 +1,432 @@
-# Plataforma Inteligente de Control de TMO, Auditoría Operativa y Automatización de Reportes Horarios para Call Centers
+# Plataforma Empresarial TMO-IA: Control Operativo, Analítica Interactiva y Automatización de Call Centers
 
-Plataforma web integral diseñada para empresas de BPO y operaciones de Call Center. Automatiza la ingesta y saneamiento de registros de llamadas desde archivos Excel, calcula el Tiempo Medio de Operación (TMO / AHT) ponderado con rigor matemático estricto, dispone de un Asistente de IA en lenguaje natural para consultar métricas de cualquier asesor de forma inmediata, y cuenta con un sistema de programación horaria para enviar alertas por correo electrónico cada 60 minutos con la relación de asesores que exceden el umbral y aquellos que van en cumplimiento.
+[![Python Version](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-6.1.3-success.svg)](https://www.djangoproject.com/)
+[![Dash](https://img.shields.io/badge/Dash-4.5.1-informational.svg)](https://dash.plotly.com/)
+[![Plotly](https://img.shields.io/badge/Plotly-7.2.0-orange.svg)](https://plotly.com/)
+[![Pandas](https://img.shields.io/badge/Pandas-3.1.1-darkblue.svg)](https://pandas.pydata.org/)
+[![APScheduler](https://img.shields.io/badge/APScheduler-3.11.3-yellow.svg)](https://apscheduler.readthedocs.io/)
+[![Pytest Suite](https://img.shields.io/badge/Tests-36%20Passed-brightgreen.svg)](https://pytest.org/)
+[![Architecture](https://img.shields.io/badge/Architecture-Clean%20%26%20SOLID-purple.svg)]()
 
-### 🔴 Problema que Soluciona
-1. **3 a 5 horas diarias de trabajo manual:** Los supervisores y coordinadores invierten gran parte de su jornada descargando tablas crudas de telefonía (PBX/ACD), eliminando filas y corrigiendo fórmulas manualmente.
-2. **La falacia del "promedio de promedios":** Se comete con frecuencia el error de promediar los TMO de los agentes sin ponderar el volumen de llamadas, distorsionando la realidad operativa y los costos del servicio.
-3. **Pausas y tiempos de silencio ocultos:** Incapacidad de detectar a tiempo a los asesores que retienen al cliente en espera prolongada o demoran buscando información en el CRM.
-4. **Reacción tardía:** Los reportes tradicionales se consolidan al final del día o de la semana, imposibilitando corregir desvíos en tiempo real durante la jornada operativa.
-
----
-
-## 🎯 Objetivo
-
-### Objetivo General
-Automatizar el ciclo completo de ingesta, cálculo estadístico ponderado, auditoría de calidad con Inteligencia Artificial y despacho periódico de reportes de TMO para Call Centers, eliminando el error humano y facilitando la toma de decisiones inmediata mediante alertas horarias y consultas en lenguaje natural.
-
-### Objetivos Específicos
-- Centralizar la ingesta y limpieza de archivos `.xlsx` y `.xls` de hasta 50 MB en menos de 2 segundos.
-- Aplicar una regla determinista inquebrantable (TMO $\le$ Umbral) para clasificar con objetividad a los asesores (`APROBADO`, `EN OBSERVACIÓN`, `REQUIERE REVISIÓN`).
-- Democratizar el acceso a los datos operativos mediante un Bot de IA capaz de responder al instante sobre cualquier asesor (ej. *"Dame los reportes del TMO del agente Jefferson Cacerez"*).
-- Notificar de forma proactiva cada 1 hora a directivos y supervisores el balance de agentes pasados vs. agentes que van bien.
-- Generar libros Excel oficiales de 4 hojas con gráficos nativos de barras y dona embebidos para auditoría y gerencia.
+> **TMO-IA** es una plataforma web enterprise de analítica operativa, auditoría de llamadas y automatización en segundo plano diseñada para operaciones BPO y Call Centers. Implementada **exclusivamente en Python puro**, integra el backend transaccional de **Django**, dashboards reactivos con **Dash & Plotly** montados en la capa WSGI, ingesta resiliente con **Pandas**, generación de libros Excel nativos con **OpenPyXL** y un motor de tareas programadas con **APScheduler**.
 
 ---
 
-## ✨ Funcionalidades
+## 📋 Tabla de Contenidos
 
-### 1. Ingesta y Limpieza Inteligente de Datos
-- Admite archivos `.xlsx` y `.xls` con detección automática de hojas y previsualización tabular.
-- Mapeo inteligente de columnas mediante alias y sinónimos comunes de telefonía.
-- Detección estricta de duplicados exactos, duraciones negativas y registros incompletos sin modificar los datos crudos originales.
-
-### 2. Motor Estadístico y Rigor Matemático
-- Cálculo del TMO individual y global ponderado por volumen de llamadas:
-  $$\text{TMO Global Ponderado} = \frac{\sum \text{Duración de Todas las Llamadas Válidas}}{\text{Total de Llamadas Válidas}}$$
-- Detección de outliers estadísticos críticos mediante puntuación estándar ($Z\text{-score} > 2.0$).
-- Desglose de tiempos de conversación, espera (hold), post-llamada (wrap-up) y porcentaje de silencio.
-
-### 3. Bot / Asistente de IA en Lenguaje Natural
-- Responde de inmediato preguntas abiertas formuladas por cualquier usuario sobre cualquier agente:
-  - *"Dame los reportes del TMO del agente Jefferson Cacerez"*
-  - *"Cómo va el agente Carlos Ramirez"*
-  - *"Muestrame las métricas de Laura Gomez"*
-- Consultas grupales y comparativas: *"¿Quiénes están pasados con el TMO?"*, *"¿Quiénes van bien?"*, *"¿Quién es el mejor agente?"* y *"¿Cuáles son los agentes con mayor tiempo de silencio?"*.
-- Diagnóstico causal automático y recomendaciones operativas de coaching para cada asesor.
-
-### 4. Automatización de Envío de Correos Cada 1 Hora (Scheduler)
-- Servicio en segundo plano que monitorea y despacha correos automáticamente cada 60 minutos (o intervalo configurable).
-- Envío flexible a cualquier dirección de correo principal y copias (CC).
-- **Estructura del correo despachado:**
-  - 🚨 **Tabla de Agentes Pasados con el TMO:** Asesores que superan el umbral con exceso en segundos, % de silencio y recomendación prioritaria.
-  - ✅ **Tabla de Agentes que Van Bien:** Asesores que cumplen la meta con % de cumplimiento y volumen de llamadas.
-  - 📎 **Adjunto Oficial:** Libro Excel de 4 hojas adjunto.
-- Botón de disparo inmediato para pruebas en vivo con 1 solo clic.
-
-### 5. Reportes Oficiales en Excel (4 Hojas con Gráficos Nativos)
-- **Hoja 1 (Datos Originales):** Registros crudos importados con marcas de validez.
-- **Hoja 2 (Resumen de Agentes):** Tabla por asesor con gráfico de barras vertical nativo comparando el TMO vs. la línea roja del umbral.
-- **Hoja 3 (Análisis Estadístico):** KPIs globales con gráfico de dona nativo de llamadas contestadas vs. perdidas.
-- **Hoja 4 (Validación de IA):** Diagnósticos explicables y planes de acción por asesor.
+1. [Visión General y Filosofía de Diseño](#-visión-general-y-filosofía-de-diseño)
+2. [Stack Tecnológico y Restricciones Estrictas](#-stack-tecnológico-y-restricciones-estrictas)
+3. [Arquitectura del Sistema](#-arquitectura-del-sistema)
+4. [Estructura del Proyecto](#-estructura-del-proyecto)
+5. [Instalación y Configuración Paso a Paso](#-instalación-y-configuración-paso-a-paso)
+6. [Puesta en Marcha y Ejecución](#-puesta-en-marcha-y-ejecución)
+7. [Módulos Funcionales y Fundamento Matemático](#-módulos-funcionales-y-fundamento-matemático)
+   - [7.1 Ingesta Inteligente y Deduplicación Criptográfica](#71-ingesta-inteligente-y-deduplicación-criptográfica)
+   - [7.2 Motor Estadístico: TMO Ponderado y Detección de Outliers (Z-Score)](#72-motor-estadístico-tmo-ponderado-y-detección-de-outliers-z-score)
+   - [7.3 Generador de Reportes Ejecutivos OpenPyXL (4 Hojas con Gráficos)](#73-generador-de-reportes-ejecutivos-openpyxl-4-hojas-con-gráficos)
+   - [7.4 Automatización Horaria APScheduler y Despacho SMTP](#74-automatización-horaria-apscheduler-y-despacho-smtp)
+   - [7.5 Dashboard Analítico Dash & Plotly Integrado en WSGI](#75-dashboard-analítico-dash--plotly-integrado-en-wsgi)
+8. [Suite de Pruebas Automatizadas (Pytest)](#-suite-de-pruebas-automatizadas-pytest)
+9. [Guía para Desarrolladores: Cómo Extender el Sistema](#-guía-para-desarrolladores-cómo-extender-el-sistema)
+10. [Despliegue en Entornos de Producción](#-despliegue-en-entornos-de-producción)
+11. [Diagnóstico y Solución de Problemas Frecuentes](#-diagnóstico-y-solución-de-problemas-frecuentes)
+12. [Enlace Oficial del Repositorio](#-enlace-oficial-del-repositorio)
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+## 🎯 Visión General y Filosofía de Diseño
 
-- **Lenguajes de programación:**
-  - **TypeScript (v5.8):** Tipado estricto en frontend y backend para máxima robustez.
-  - **JavaScript (Node.js v18+ / v24):** Entorno de ejecución asíncrono y de alto rendimiento.
-  - **Python (v3.9+):** Motor para la generación de gráficos nativos de Excel.
-- **Frameworks y librerías:**
-  - **Backend:** Express (v4.21), Multer (manejo de archivos), Nodemailer (cliente SMTP), ExcelJS, XLSX, Zod, UUID, CORS.
-  - **Frontend:** React 19, Vite (v6.2), TailwindCSS (v3.4), Lucide React (iconografía).
-  - **Procesamiento de Gráficos:** Python `openpyxl` (3.1+) para incrustar gráficos de barras y dona vectoriales dentro de archivos `.xlsx`.
-- **Bases de datos, API y herramientas externas:**
-  - **Base de Datos Local:** `database_local.json` (persistencia JSON estructurada sin dependencias externas obligatorias).
-  - **Base de Datos Cloud / Escalabilidad:** PostgreSQL y Supabase (integrado opcional con Row Level Security y Storage Buckets).
-  - **Servidor SMTP:** Gmail SMTP (`smtp.gmail.com:465` SSL/TLS con App Password cifrado).
-  - **Orquestación:** n8n (workflows exportados en formato JSON en `n8n/workflows/`).
+En las operaciones de telecomunicaciones y BPO, el **TMO (Tiempo Medio de Operación / AHT - Average Handle Time)** es el indicador crítico de costo y productividad. Sin embargo, las organizaciones cometen dos errores operativos graves:
+1. **La falacia del "promedio de promedios":** Promediar directamente los promedios de duración de los agentes sin ponderar el número de llamadas atenúa la realidad de quienes atienden grandes volúmenes.
+2. **Dependencia de procesos manuales:** Los coordinadores pierden horas diarias formateando hojas de cálculo, enviando reportes tardíos que impiden la toma de decisiones en tiempo real.
+
+**TMO-IA** resuelve estos problemas eliminando la intervención manual:
+- Ingesta cualquier archivo Excel de telefonía (`.xlsx`, `.xls`) en milisegundos.
+- Calcula el TMO ponderado exacto por asesor y a nivel global.
+- Aplica análisis de dispersión gaussiana ($Z\text{-Score}$) para aislar agentes con desvíos anómalos.
+- Ejecuta auditorías periódicas automáticas en segundo plano (cada 60 minutos u horarios programados) y despacha correos ejecutivos con informes multiformato.
+- Ofrece dashboards interactivos reactivos con filtros y simuladores de umbral sin recargar la página.
 
 ---
 
-## 📁 Estructura del proyecto
+## 🛠 Stack Tecnológico y Restricciones Estrictas
 
-```text
+El proyecto fue construido bajo la regla irrestricta de **cero dependencias de JavaScript o frameworks frontend externos**. Toda la lógica de negocio, manipulación de datos, tareas asíncronas y renderizado visual reactivo está gobernada al 100% por Python:
+
+| Componente | Tecnología | Versión | Responsabilidad |
+|---|---|---|---|
+| **Lenguaje Core** | Python | 3.12.10 | Lógica del sistema, tipado estricto y ejecución |
+| **Backend & ORM** | Django | 6.1.3 | Rutas, seguridad, administración, transacciones ORM |
+| **Analítica Reactiva** | Dash | 4.5.1 | Dashboard interactivo y arquitectura de componentes |
+| **Visualización** | Plotly | 7.2.0 | Gráficos de barras, dona, dispersión y composición |
+| **Procesamiento de Datos** | Pandas | 3.1.1 | Normalización de DataFrames, transformaciones vectorizadas |
+| **Reportes Excel** | OpenPyXL | 3.1.5 | Generación de libros Excel con formato y gráficos nativos |
+| **Automatización** | APScheduler | 3.11.3 | Tareas programadas en background con control de concurrencia |
+| **Testing** | Pytest & pytest-django | 9.2.0 | Suite integral de pruebas unitarias, E2E y de resiliencia |
+| **Base de Datos** | SQLite3 / PostgreSQL | Compatible | Almacenamiento relacional transaccional |
+| **Configuración** | Python-Decouple | 3.8 | Gestión segura de variables de entorno mediante `.env` |
+
+---
+
+## 🏛 Arquitectura del Sistema
+
+El proyecto sigue una arquitectura por capas basada en principios **SOLID** y **Clean Architecture**, aislando completamente la lógica de negocio del framework web:
+
+```
+                                  USUARIO / NAVEGADOR
+                                           │
+                                           ▼
+                             ┌───────────────────────────┐
+                             │       WSGI Server         │
+                             │  (DispatcherMiddleware)   │
+                             └─────────────┬─────────────┘
+                                           │
+                    ┌──────────────────────┴──────────────────────┐
+                    │                                             │
+                    ▼                                             ▼
+          ┌───────────────────┐                         ┌───────────────────┐
+          │   Django Core     │                         │     Dash App      │
+          │   HTTP Requests   │                         │  (/analitica/dash)│
+          └─────────┬─────────┘                         └─────────┬─────────┘
+                    │                                             │
+    ┌───────────────┼───────────────┐                             │
+    ▼               ▼               ▼                             │
+┌─────────┐   ┌───────────┐   ┌────────────┐                      │
+│  Core   │   │Operations │   │ Automation │                      │
+│  Views  │   │   Views   │   │   Views    │                      │
+└─────────┘   └─────┬─────┘   └─────┬──────┘                      │
+                    │               │                             │
+                    └───────┬───────┴─────────────────────────────┘
+                            │
+                            ▼
+              ┌───────────────────────────┐
+              │    Servicios de Dominio   │
+              │  (services/data_processor)│
+              │  (services/tmo_calculator)│
+              │  (services/excel_generator│
+              │  (services/email_notifier)│
+              │  (services/scheduler)     │
+              └─────────────┬─────────────┘
+                            │
+              ┌─────────────┴─────────────┐
+              ▼                           ▼
+    ┌───────────────────┐       ┌───────────────────┐
+    │     Django ORM    │       │    APScheduler    │
+    │  Modelos & Querys │       │ Background Worker │
+    └─────────┬─────────┘       └───────────────────┘
+              │
+              ▼
+    ┌───────────────────┐
+    │   Base de Datos   │
+    │ SQLite/PostgreSQL │
+    └───────────────────┘
+```
+
+---
+
+## 📂 Estructura del Proyecto
+
+```
 TMO-IA/
-├── backend/                               # Servidor REST API en Node.js + Express + TypeScript
-│   ├── src/
-│   │   ├── config/                        # Configuración de entorno, SMTP y Supabase/DB local
-│   │   ├── controllers/                   # Controladores (AIController, SettingsController, etc.)
-│   │   ├── middleware/                    # Idempotencia, seguridad y manejo global de errores
-│   │   ├── routes/                        # Definición de rutas REST (/api)
-│   │   ├── services/                      # Motores de TMO, IA, Excel, Correo y Scheduler Horario
-│   │   │   ├── aiService.ts               # Lógica analítica y diagnóstico causal
-│   │   │   ├── emailService.ts            # Plantillas HTML ejecutivas y despacho SMTP
-│   │   │   ├── excelGenerator.ts          # Orquestador del reporte de 4 hojas (openpyxl / ExcelJS)
-│   │   │   ├── excelProcessor.ts          # Ingesta, limpieza y normalización de Excel crudos
-│   │   │   ├── schedulerService.ts        # Programador en segundo plano para envíos cada 1 hora
-│   │   │   └── tmoCalculator.ts           # Motor de cálculo ponderado y Z-score
-│   │   ├── types/                         # Interfaces y tipos TypeScript
-│   │   └── index.ts                       # Punto de arranque del servidor y arranque del scheduler
-│   ├── scripts/
-│   │   ├── generate_excel_charts.py       # Script Python openpyxl para gráficos embebidos
-│   │   └── test_gmail_smtp.js             # Verificador de conectividad SMTP
-│   ├── database_local.json                # Base de datos local persistente con llamadas y agentes
-│   ├── .env.example                       # Plantilla de variables de entorno
-│   ├── package.json
-│   └── tsconfig.json
-├── frontend/                              # Interfaz de usuario React 19 + TypeScript + TailwindCSS
-│   ├── src/
-│   │   ├── components/                    # KPICard, BarChart, DonutChart, Navbar, Sidebar
-│   │   ├── pages/                         # Las 10 páginas operativas de la plataforma
-│   │   │   ├── AIAssistantPage.tsx        # Chat interactivo en lenguaje natural y auditoría
-│   │   │   ├── EmailConfigPage.tsx        # Configuración del scheduler horario y envíos manuales
-│   │   │   ├── DashboardPage.tsx          # Dashboard con 8 KPIs, barras y donas
-│   │   │   ├── AgentAnalysisPage.tsx      # Ficha individual de cada asesor
-│   │   │   └── ...                        # Demás vistas operativas
-│   │   ├── services/                      # Cliente API tipado para comunicación con backend (api.ts)
-│   │   ├── App.tsx                        # Router y estado global
-│   │   └── main.tsx                       # Punto de montaje de React
-│   ├── package.json
-│   ├── tailwind.config.js
-│   ├── tsconfig.json
-│   └── vite.config.ts
-├── database/                              # Esquemas y funciones SQL para PostgreSQL / Supabase
-│   ├── functions.sql
-│   ├── rls_policies.sql
-│   └── schema.sql
-├── docs/                                  # Documentación técnica, presentaciones y recursos
-│   ├── ARCHITECTURE.md                    # Arquitectura general y flujos
-│   ├── CONTENIDO_DIAPOSITIVAS_PRESENTACION.md # Guion y texto listo para diapositivas con notas
-│   ├── GAMMA_PRESENTATION.md              # Documento adaptado para Gamma App
-│   ├── gamma_prompt_import.txt            # Prompt optimizado de importación
-│   ├── Infografia sobre la inteligente_de_control_TMO.png # Infografía gráfica del sistema
-│   ├── Plataforma_Inteligente_de_Control_de_TMO.pdf       # Presentación ejecutiva en PDF
-│   ├── Plataforma_Inteligente_de_Control_de_TMO.pptx      # Diapositivas maestras en PowerPoint
-│   ├── presentation_slides.html           # Diapositivas interactivas listas en HTML
-│   ├── README_PARA_GAMMA.md               # Instrucciones de exportación
-│   ├── README_Proyecto_IA_BPO.pdf         # Manual técnico en PDF
-│   ├── REPLICATION_MANUAL.md              # Guía paso a paso de replicación
-│   ├── RUNBOOK.md                         # Procedimientos operativos
-│   ├── SUPABASE_SETUP.md                  # Configuración de base de datos en nube
-│   └── VALIDATION_REPORT.md               # Informe de validación y control de calidad
-├── n8n/                                   # Automatizaciones y flujos n8n
-│   ├── workflows/                         # Workflows listos para importación JSON
-│   └── README.md                          # Guía de importación en n8n
-├── sample_data/                           # Datasets de prueba
-│   ├── call_center_dataset_demo.xlsx      # Dataset con 92 llamadas reales (incluye Jefferson Cacerez)
-│   ├── call_center_edge_cases.xlsx        # Dataset con casos borde para pruebas
-│   └── seed_sample_data.py                # Generador Python de datos de prueba
-├── tests/                                 # Suite de pruebas automatizadas
-│   ├── run_tests.js                       # Ejecutor integral de pruebas matemáticas y de Excel
-│   ├── test_calculations.ts               # Tests unitarios de fórmulas TMO
-│   └── test_excel_pipeline.ts             # Tests del pipeline de Excel
-├── .gitignore                             # Reglas de exclusión de Git
-├── README.md                              # Documento oficial del proyecto
-└── seed_live_platform.js                  # Script de recarga de datos demo en la API
+├── apps/
+│   ├── analytics/               # Módulo de Cuadros de Mando Dash & Plotly
+│   │   ├── __init__.py
+│   │   ├── apps.py
+│   │   ├── dash_app.py          # Dashboard interactivo con 4 KPIs y 4 gráficos
+│   │   ├── urls.py              # Rutas de analítica
+│   │   └── views.py             # Adaptador WSGI y template wrapper
+│   ├── automation/              # Módulo de Automatización y Tareas Programadas
+│   │   ├── __init__.py
+│   │   ├── apps.py              # Hook de arranque seguro del Scheduler
+│   │   ├── models.py            # AutomationJob, ExecutionLog, AutomationAlertRecipient
+│   │   ├── urls.py              # Endpoints para panel de control y disparo manual
+│   │   └── views.py             # Vistas de monitoreo y logs de ejecución
+│   ├── core/                    # Módulo Central de Navegación y Páginas Base
+│   │   ├── __init__.py
+│   │   ├── apps.py
+│   │   ├── urls.py              # Enrutador principal (Home, Health check)
+│   │   └── views.py             # Landing page con métricas agregadas
+│   └── operations/              # Módulo Operativo de Ingesta y Gestión de Llamadas
+│       ├── __init__.py
+│       ├── apps.py
+│       ├── forms.py             # Validación estricta de archivos Excel
+│       ├── models.py            # Agent, IngestedFile, CallRecord, ThresholdConfig
+│       ├── urls.py              # Rutas de upload, listado y descarga de reportes
+│       └── views.py             # Vistas de carga y visualización de registros
+├── config/                      # Configuración Global del Proyecto Django
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py              # Configuración centralizada, decouple y logging
+│   ├── urls.py                  # Enrutador maestro con alias de resiliencia
+│   └── wsgi.py                  # DispatcherMiddleware integrando Django + Dash
+├── services/                    # Capa de Servicios de Dominio (Pure Python)
+│   ├── __init__.py
+│   ├── automation_service.py    # Scheduler Singleton y pipeline de auditoría periódica
+│   ├── data_processor.py        # Ingesta Pandas, deduplicación y parsing de duraciones
+│   ├── email_service.py         # Formateador de plantillas HTML y despacho SMTP
+│   ├── excel_generator.py       # Generador de 4 hojas de cálculo con OpenPyXL
+│   └── tmo_calculator.py        # Algoritmos estadísticos: TMO Ponderado y Z-Score
+├── templates/                   # Plantillas HTML Semánticas con Estilos Puros
+│   ├── analytics/dashboard.html # Contenedor responsive del Dash App
+│   ├── automation/panel.html    # Panel de control de tareas y monitor de logs
+│   ├── base.html                # Plantilla base con barra de navegación institucional
+│   ├── core/home.html           # Vista principal con estado operativo
+│   └── operations/              # Vistas de subida de archivos y tabla de llamadas
+├── tests/                       # Suite Exhaustiva de Pruebas Pytest (36 Tests)
+│   ├── test_analytics.py        # Pruebas unitarias de Dash y callbacks
+│   ├── test_automation.py       # Pruebas de modelos, jobs y scheduler
+│   ├── test_data_processor.py   # Pruebas de parsing de duraciones y normalización
+│   ├── test_edge_cases_and_resilience.py # Pruebas con archivos corruptos y concurrencia
+│   ├── test_environment.py      # Pruebas de configuración y rutas HTTP
+│   ├── test_excel_generator.py  # Pruebas de integridad del libro Excel generado
+│   ├── test_integration_e2e.py  # Ciclo de vida completo: Ingesta -> TMO -> Reporte -> Email
+│   ├── test_operations_views.py # Pruebas de endpoints de carga y descarga
+│   ├── test_performance_and_security.py # Inyecciones SQL, Headers y benchmarks
+│   └── test_tmo_calculator.py   # Pruebas matemáticas de algoritmos ponderados
+├── sample_data/                 # Archivos de prueba (demo_call_center.xlsx, etc.)
+├── .env.example                 # Plantilla documentada de variables de entorno
+├── manage.py                    # Gestor CLI de Django
+├── pytest.ini                   # Configuración del ejecutor de pruebas
+├── requirements.txt             # Dependencias estrictamente versionadas
+└── README.md                    # Manual integral de documentación y despliegue
 ```
 
 ---
 
-## ⚙️ Requisitos previos
+## 🚀 Instalación y Configuración Paso a Paso
 
-- **Node.js:** Versión 18.0.0 o superior (Verificado y probado en Node v24).
-- **Python:** Versión 3.9 o superior (con la librería `openpyxl`).
-- **Navegador Web:** Google Chrome, Microsoft Edge, Mozilla Firefox o Safari.
-- **Acceso a Internet / Credenciales SMTP:** Cuenta de correo configurada para despacho (preconfigurada con Gmail SMTP).
+### 1. Prerrequisitos
+- **Python:** 3.12.x instalado y registrado en el `PATH` del sistema.
+- **Git:** Instalado en el sistema operativo.
 
----
+### 2. Clonar el Repositorio
+```bash
+git clone https://github.com/jeffersoncace0-ctrl/TMO-IA.git
+cd TMO-IA
+```
 
-## 🚀 Instalación
-
-1. **Clonar o descomprimir el proyecto:**
-   ```powershell
-   cd tmo_project
-   ```
-
-2. **Instalar dependencias del Backend:**
-   ```powershell
-   cd backend
-   npm install
-   npm run build
-   ```
-
-3. **Instalar dependencias del Frontend:**
-   ```powershell
-   cd ../frontend
-   npm install
-   npm run build
-   ```
-
-4. **Instalar biblioteca Python openpyxl (para gráficos nativos en Excel):**
-   ```powershell
-   python -m pip install openpyxl
-   ```
-
-5. **Configurar las variables de entorno:**  
-   El archivo `backend/.env` viene listo para desarrollo. Puedes crear o revisar `backend/.env` basándote en `backend/.env.example`:
-   ```env
-   PORT=4000
-   NODE_ENV=development
-   FRONTEND_URL=http://localhost:5173
-
-   # Configuración SMTP (Gmail con App Password)
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=465
-   SMTP_SECURE=true
-   SMTP_USER=tu-correo@gmail.com
-   SMTP_PASS=tu-password-de-aplicacion-aqui
-   SMTP_FROM_NAME="Call Center Analytics & TMO"
-   SMTP_FROM_EMAIL=tu-correo@gmail.com
-
-   # Umbral objetivo de TMO en segundos
-   DEFAULT_TMO_THRESHOLD=20.0
-   ```
-
----
-
-## ▶️ Ejecución
-
-Para iniciar y visualizar la plataforma completa, abre dos terminales:
-
-### Terminal 1: Iniciar el Servidor Backend API
+### 3. Crear y Activar el Entorno Virtual
+En Windows (PowerShell / CMD):
 ```powershell
-cd backend
-npm run dev
-# O mediante el bundle compilado:
-node dist/index.js
+python -m venv venv
+.\venv\Scripts\activate
 ```
-* **Puerto utilizado:** `4000`
-* **URL de la API:** `http://localhost:4000/api`
-* **Salida esperada:**
-  ```text
-  🚀 SERVIDOR BACKEND INICIADO EN PUERTO: 4000
-  📡 URL API: http://localhost:4000/api
-  📊 Umbral TMO Predeterminado: 20 segundos
-  ⏰ Scheduler de Reportes Horarios activado. Próximo envío programado a paulcacerez768@gmail.com
-  ```
 
-### Terminal 2: Iniciar la Aplicación Frontend Web
+En Linux / macOS:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 4. Instalar las Dependencias Oficiales
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 5. Configurar las Variables de Entorno
+Copia la plantilla `.env.example` a `.env`:
 ```powershell
-cd frontend
-npm run dev
+Copy-Item .env.example .env
 ```
-* **Puerto utilizado:** `5173`
-* **URL local:** `http://localhost:5173`
+Edita `.env` para personalizar tu configuración (clave secreta, base de datos, umbral de TMO y credenciales SMTP si deseas despachar correos reales).
 
-### Cómo verificar que funciona correctamente:
-1. Abre tu navegador e ingresa a **`http://localhost:5173`**.
-2. Verifica que las 8 tarjetas KPI y los gráficos de barras y donas carguen con datos.
-3. Ingresa en el menú a **Asistente de IA** y formula la pregunta:  
-   `Dame los reportes del TMO del agente Jefferson Cacerez`. El bot responderá en menos de 1 segundo con su ficha detallada.
-4. Ingresa a **Configuración de Correo** y haz clic en **"Enviar Reporte Ahora Mismo (Prueba)"** para recibir el reporte horario en tu correo.
+### 6. Ejecutar las Migraciones de la Base de Datos
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 7. Crear el Superusuario Administrador (Opcional)
+```bash
+python manage.py createsuperuser
+```
 
 ---
 
-## 🔄 Funcionamiento
+## ⚡ Puesta en Marcha y Ejecución
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Supervisor as Supervisor / Directivo
-    participant Frontend as Interfaz React (UI)
-    participant Backend as Backend Express API
-    participant AI as Motor de IA
-    participant Scheduler as Scheduler Horario
-    participant SMTP as Servidor SMTP (Gmail)
-
-    Supervisor->>Frontend: Carga archivo Excel (.xlsx / .xls)
-    Frontend->>Backend: POST /api/files/upload & process
-    Backend->>Backend: Normalización y Cálculo Ponderado de TMO
-    Backend-->>Frontend: Métricas, KPIs y Clasificación Determinista
-    
-    Supervisor->>Frontend: Pregunta: "¿Cómo va Jefferson Cacerez?"
-    Frontend->>Backend: POST /api/ai/ask
-    Backend->>AI: Análisis semántico y búsqueda de agente
-    AI-->>Frontend: Reporte de TMO, estado APROBADO, causas y plan de acción
-    
-    loop Cada 60 Minutos (En segundo plano)
-        Scheduler->>Backend: Ejecutar corte de control horario
-        Backend->>Backend: Filtrar Agentes Pasados vs Agentes que Van Bien
-        Backend->>SMTP: Enviar correo HTML + Libro Excel adjunto
-        SMTP-->>Supervisor: Recepción de alerta horaria (250 OK)
-    end
-```
-
-### Entradas y Salidas del Sistema
-- **Entradas:**
-  - Archivos Excel de telefonía (`ID_Llamada`, `Codigo_Agente`, `Nombre_Agente`, `Duracion_Total_Seg`, `Tiempo_Silencio_Seg`, `Estado_Llamada`).
-  - Preguntas en lenguaje natural ingresadas por los supervisores en el chat de IA.
-  - Dirección de correo electrónico configurada para la recepción del corte horario.
-- **Salidas:**
-  - Dashboard web interactivo con 8 KPIs en tiempo real, gráficos de barras con línea de umbral y gráficos de dona.
-  - Respuestas inmediatas del bot con diagnósticos causales por asesor.
-  - Correos electrónicos periódicos cada hora con tablas comparativas y estado ante el proveedor (250 OK).
-  - Libro Excel descargable de 4 hojas con gráficos nativos vectoriales.
-
----
-
-## 🧪 Pruebas
-
-El proyecto cuenta con una suite integral de pruebas unitarias y de integración que validan matemáticamente todas las fórmulas y pipelines.
-
-### Comando para ejecutar las pruebas:
+### 1. Iniciar el Servidor de Desarrollo
 ```powershell
-node tests/run_tests.js
+python manage.py runserver 8000
+```
+El sistema estará accesible inmediatamente en:
+- **Plataforma Principal:** `http://127.0.0.1:8000/`
+- **Gestión de Operaciones:** `http://127.0.0.1:8000/operaciones/`
+- **Subida de Archivos Excel:** `http://127.0.0.1:8000/operaciones/subir/`
+- **Dashboard Analítico Dash:** `http://127.0.0.1:8000/analitica/`
+- **Panel de Automatización:** `http://127.0.0.1:8000/automatizacion/panel/`
+- **Panel de Administración Django:** `http://127.0.0.1:8000/admin/`
+
+> **Nota sobre Conflictos de Puertos en Windows:**
+> Si al iniciar el servidor recibes el error `That port is already in use`, puedes liberar el puerto 8000 con el siguiente comando en PowerShell:
+> ```powershell
+> Get-Process -Id (Get-NetTCPConnection -LocalPort 8000).OwningProcess | Stop-Process -Force
+> ```
+> O iniciar el servidor en un puerto alternativo:
+> ```powershell
+> python manage.py runserver 8080
+> ```
+
+---
+
+## 🧠 Módulos Funcionales y Fundamento Matemático
+
+### 7.1 Ingesta Inteligente y Deduplicación Criptográfica
+- **Cálculo de Hash SHA-256:** Cada archivo subido es procesado mediante `hashlib.sha256()`. Si un supervisor intenta cargar el mismo archivo dos veces, el sistema detecta la colisión y previene la duplicación de datos.
+- **Parsing Resiliente de Duraciones:** El servicio `DataProcessorService` admite formatos heterogéneos (`"00:03:45"`, `"03:45"`, `225` segundos, números decimales, cadenas vacías o con espacios) normalizándolos a segundos de forma determinista.
+- **Mapeo Inteligente de Columnas:** Tolera variaciones de nomenclatura (`ID_Llamada`, `id_llamada`, `CALL_ID`, `AGENTE`, `ASESOR`, etc.) garantizando una ingesta robusta sin fallos por diferencias de formato.
+
+### 7.2 Motor Estadístico: TMO Ponderado y Detección de Outliers (Z-Score)
+El cálculo del TMO por agente y global no se efectúa promediando promedios. Se aplica la **fórmula ponderada estricta**:
+
+$$\text{TMO}_{\text{Ponderado}} = \frac{\sum_{i=1}^{n} (\text{Duración Hablada}_i + \text{Tiempo Espera}_i + \text{Tiempo Post-Llamada}_i)}{\sum_{i=1}^{n} \text{Llamadas Atendidas}_i}$$
+
+Para la detección de asesores atípicos, se calcula el desvío estándar ($\sigma$) y la puntuación Z ($Z\text{-Score}$):
+
+$$Z_i = \frac{\text{TMO}_i - \mu}{\sigma}$$
+
+- Si $Z_i > 2.0$: El asesor es clasificado como **Outlier Crítico / Requiere Revisión**, lo que activa automáticamente una alerta prioritaria en los tableros y en los correos de auditoría.
+
+### 7.3 Generador de Reportes Ejecutivos OpenPyXL (4 Hojas con Gráficos)
+El servicio `ExcelReportService` genera un libro de cálculo profesional con estilo corporativo estructurado en 4 hojas:
+1. **Resumen Ejecutivo:** KPIs globales (Total llamadas, TMO ponderado general, distribución de asesores por estado: Aprobado, Observación, Crítico).
+2. **Detalle por Asesor:** Tabla formateada con totales de tiempo, TMO individual, ratio de cumplimiento y semaforización condicional.
+3. **Registro de Llamadas:** Detalle íntegro de llamadas con identificador, fecha/hora y duraciones.
+4. **Gráficos:** Contiene gráficos nativos embebidos de OpenPyXL (`BarChart` de TMO por Asesor vs. Umbral y `PieChart` de distribución porcentual de estados).
+
+### 7.4 Automatización Horaria APScheduler y Despacho SMTP
+- **Patrón Singleton:** El `AutomationSchedulerService` utiliza un patrón Singleton y un bloqueo reentrante (`threading.Lock`) para garantizar que exista **una única instancia del scheduler** activa en todo el ciclo de vida del proceso web.
+- **Auditoría Periódica:** Cada 60 minutos (o al presionar *"Ejecutar Auditoría Ahora"* en el panel web), el servicio:
+  1. Consulta los registros de llamadas disponibles en la base de datos.
+  2. Ejecuta el cálculo estadístico y clasifica a los asesores.
+  3. Genera un libro Excel en memoria mediante `ExcelReportService`.
+  4. Compila una plantilla HTML con el balance operativo (asesores aprobados vs. en observación/críticos).
+  5. Despacha el correo vía SMTP con el archivo Excel adjunto y registra el log de ejecución con su tiempo de cómputo en la tabla `ExecutionLog`.
+
+### 7.5 Dashboard Analítico Dash & Plotly Integrado en WSGI
+Integrado mediante el estándar WSGI (`DispatcherMiddleware` en `config/wsgi.py`), la aplicación Dash corre bajo la misma instancia del servidor Django sin necesidad de procesos Node.js o puertos secundarios:
+- **Simulador de Umbral Interactivo:** Un control deslizante (`Slider`) permite simular en tiempo real cómo varía la tasa de cumplimiento si el umbral exigido cambia entre 10 y 60 segundos.
+- **Filtro de Asesores:** Menú desplegable dinámico para aislar métricas de asesores específicos.
+- **4 Tarjetas de Métricas (KPIs):** Total Llamadas, TMO Ponderado, Agentes Activos y Cumplimiento Operativo.
+- **4 Gráficos Interactivos Plotly:**
+  1. *Bar Chart:* TMO por asesor vs. Línea de umbral meta.
+  2. *Donut Chart:* Porcentaje de agentes en Aprobado, Observación y Crítico.
+  3. *Scatter Plot:* Detección de Outliers según Z-Score.
+  4. *Stacked Bar:* Composición del tiempo (Conversación vs. Espera vs. ACW).
+
+---
+
+## 🧪 Suite de Pruebas Automatizadas (Pytest)
+
+El proyecto cuenta con **36 pruebas automatizadas** que validan la solidez del sistema ante fallos, datos corruptos y estrés de concurrencia:
+
+```bash
+pytest -v
 ```
 
-### Validaciones implementadas:
-1. **Verificación Matemática de TMO y Reglas Deterministas:** Comprueba que el TMO ponderado evite el sesgo de promedios simples y valida los límites de aprobación (20.0s).
-2. **Pipeline de Ingesta y Generación de Excel:** Valida la lectura de datasets reales (>90 llamadas) y la generación correcta de las 4 hojas con gráficos nativos embebidos (`openpyxl`).
-3. **Casos Borde y Tolerancia a Fallos:** Comprueba la detección estricta de llamadas duplicadas, duraciones negativas y filas corruptas sin abortar la ejecución del sistema.
+### Resumen de la Cobertura de Pruebas:
+1. **Pruebas de Ingesta y Parsing (`test_data_processor.py`):** Detección de colisiones SHA-256, tolerancia a columnas faltantes y conversiones de tiempo complejas.
+2. **Pruebas Estadísticas (`test_tmo_calculator.py`):** Verificación matemática del TMO ponderado vs. promedio simple y asignación determinista de umbrales.
+3. **Pruebas de Generación Excel (`test_excel_generator.py`):** Comprobación de existencia de las 4 hojas, estilos de celda y gráficos nativos.
+4. **Pruebas de Automatización y Scheduler (`test_automation.py`):** Validación del Singleton, ejecución de jobs sin duplicación y despacho SMTP con backend de memoria.
+5. **Pruebas de Dash & Callbacks (`test_analytics.py`):** Validación de rutas WSGI de Dash (`/_dash-layout`, `/_dash-dependencies`), cálculo de gráficos y callbacks reactivos.
+6. **Pruebas de Casos Borde y Resiliencia (`test_edge_cases_and_resilience.py`):** Archivos binarios corruptos, extensiones no permitidas (.exe, .txt), concurrencia simultánea con `threading.Lock`.
+7. **Pruebas de Rendimiento y Seguridad (`test_performance_and_security.py`):** Ingesta de 1,000 registros en <0.5s, persistencia bulk en <1.5s, protección contra SQL Injection en ORM y verificación de headers de seguridad (`X-Frame-Options: SAMEORIGIN`).
+8. **Prueba Integral End-to-End (`test_integration_e2e.py`):** Ciclo completo desde la carga HTTP del archivo Excel hasta la generación del reporte, ejecución del scheduler y reflejo en el dashboard.
 
-*Resultado de ejecución exitosa:*
-```text
-================================================================
-SUITE DE PRUEBAS INTEGRALES DE LA PLATAFORMA DE TMO
-================================================================
-✅ TEST 1 COMPLETADO: Fórmulas de TMO individual, ponderado global y clasificación determinista aprobadas.
-✅ TEST 2 COMPLETADO: Reporte Excel de 4 hojas generado con éxito (Gráficos nativos embebidos: true).
-✅ TEST 3 COMPLETADO: Detección estricta de 1 duplicados y 4 inconsistencias.
-================================================================
-🎉 TODAS LAS PRUEBAS AUTOMATIZADAS PASARON EXITOSAMENTE (100% OK)
-================================================================
+---
+
+## 🛠 Guía para Desarrolladores: Cómo Extender el Sistema
+
+### 1. Agregar un Nuevo Algoritmo Estadístico
+Crea el método en `services/tmo_calculator.py` utilizando type hints y docstrings explicativos:
+```python
+def calculate_agent_fcr(self, calls_df: pd.DataFrame) -> float:
+    """Calcula el First Call Resolution (FCR) ponderado."""
+    # Lógica con Pandas vectorizado
+    ...
+```
+
+### 2. Agregar una Nueva Tarea Programada al Scheduler
+En `services/automation_service.py`, agrega un método de auditoría y regístralo en el scheduler:
+```python
+def schedule_weekly_consolidated_job(self) -> None:
+    self.scheduler.add_job(
+        func=self._execute_weekly_pipeline,
+        trigger="cron",
+        day_of_week="sun",
+        hour=23,
+        id="weekly_consolidated_audit",
+        replace_existing=True
+    )
+```
+
+### 3. Incorporar un Nuevo Gráfico al Dashboard Dash
+En `apps/analytics/dash_app.py`, añade el componente `dcc.Graph` al layout y define el callback correspondiente en Python puro.
+
+---
+
+## 🌐 Despliegue en Entornos de Producción
+
+### 1. Servidor WSGI en Producción (Linux / Gunicorn)
+Instalar Gunicorn:
+```bash
+pip install gunicorn
+```
+Ejecutar con 4 workers concurrentes enlazando la aplicación combinada Django+Dash:
+```bash
+gunicorn config.wsgi:application --workers 4 --bind 0.0.0.0:8000 --timeout 120
+```
+
+### 2. Servidor WSGI en Producción (Windows / Waitress)
+Instalar Waitress:
+```bash
+pip install waitress
+```
+Ejecutar el servicio:
+```powershell
+waitress-serve --listen=0.0.0.0:8000 config.wsgi:application
+```
+
+### 3. Configuración de Base de Datos PostgreSQL
+En `.env`, configura el motor PostgreSQL:
+```ini
+DEBUG=False
+SECRET_KEY=clave_criptografica_real_de_produccion
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=tmo_production
+DB_USER=tmo_user
+DB_PASSWORD=contrasena_segura
+DB_HOST=127.0.0.1
+DB_PORT=5432
+```
+Aplica migraciones y recopila los archivos estáticos:
+```bash
+python manage.py collectstatic --noinput
+python manage.py migrate
 ```
 
 ---
 
-## 🔐 Seguridad
+## 🔍 Diagnóstico y Solución de Problemas Frecuentes
 
-### Protección de Credenciales y Datos Sensibles
-- **Aislamiento de Entorno:** Ninguna contraseña ni clave privada de servicios se expone en el código cliente de React. Todas las conexiones SMTP y de base de datos se ejecutan en el servidor backend mediante `.env`.
-- **Claves de Aplicación (App Passwords):** La integración con Gmail utiliza contraseñas de aplicación exclusivas sin necesidad de usar la contraseña maestra de la cuenta.
-- **Inmutabilidad del Dato Crudo:** Los archivos cargados originalmente se preservan intactos para fines de auditoría técnica.
-- **Idempotencia Criptográfica:** Cada petición de procesamiento cuenta con un hash SHA-256 único para evitar duplicaciones accidentales de llamadas o correos.
-
-### Errores Frecuentes y Soluciones:
-| Error | Causa Probable | Solución |
-| :--- | :--- | :--- |
-| `EADDRINUSE: port 4000` | El puerto del backend está ocupado por otra instancia. | Finalizar el proceso anterior o cambiar `PORT=4001` en `.env`. |
-| `ModuleNotFoundError: No module named 'openpyxl'` | Falta la biblioteca Python para gráficos. | Ejecutar `python -m pip install openpyxl`. Si no se instala, el sistema activa automáticamente el motor fallback de ExcelJS sin detenerse. |
-| `Invalid login: 535 5.7.8` en SMTP | App Password de Gmail revocada o con espacios. | Generar una nueva App Password en la cuenta de Google y colocarla en `SMTP_PASS` sin espacios. |
+| Síntoma / Error | Causa Raíz | Solución Técnica |
+|---|---|---|
+| `Port 8000 is already in use` | Otro proceso de Python o Django está ejecutándose en segundo plano. | Identificar el PID con `Get-NetTCPConnection -LocalPort 8000` y detenerlo con `Stop-Process -Id <PID> -Force`, o iniciar en otro puerto: `python manage.py runserver 8080`. |
+| `Page not found (404) at /automatizacion/panel/` | El navegador está conectado a un proceso Django antiguo de otro directorio. | Detén el proceso huérfano y ejecuta el servidor desde la raíz de `C:\Users\User\Desktop\TMO-IA\`. |
+| `TypeError: unexpected keyword argument` en modelos | Inconsistencia de campos en migraciones no aplicadas. | Ejecutar `python manage.py migrate` para sincronizar el esquema de base de datos. |
+| Fallo al autenticar en SMTP de Gmail | Contraseña normal utilizada en lugar de App Password. | Generar una "Contraseña de Aplicación" en la configuración de seguridad de Google y asignarla en `SMTP_PASSWORD`. |
 
 ---
 
-## 👥 Autores
+## 🔗 Enlace Oficial del Repositorio
 
-- **Jefferson Cacerez** — *Líder de Proyecto, Diseñador de Métricas de TMO y Desarrollador Full Stack*.
-- **Equipo de Operaciones & BPO Analytics** — *Validación operativa de indicadores y casos de negocio*.
+El código fuente completo, con control de versiones, suites de pruebas y documentación de arquitectura, se encuentra disponible en GitHub:
 
----
-
-## 📌 Estado del proyecto
-
-**Estado Actual:** 🟢 **Funcional y Listo para Producción (100% Operativo)**.
-
-### Mejoras Futuras Planificadas:
-- Integración directa por Webhook con marcadores telefónicos en la nube (ej. Genesys Cloud, Asterisk / FreePBX, Vicidial).
-- Envío de alertas críticas instantáneas a través de bots de WhatsApp Business y Microsoft Teams.
-- Modelos predictivos de Machine Learning para pronosticar picos de TMO según la franja horaria.
+👉 **[https://github.com/jeffersoncace0-ctrl/TMO-IA.git](https://github.com/jeffersoncace0-ctrl/TMO-IA.git)**
 
 ---
 
-## 📄 Licencia
-
-Este proyecto está distribuido bajo la licencia **MIT**, permitiendo su uso, modificación y distribución para fines comerciales y académicos respetando la atribución original.
+*Desarrollado con estándares de ingeniería de software empresarial: Clean Code, SOLID, Pure Python y Arquitectura Modular.*
