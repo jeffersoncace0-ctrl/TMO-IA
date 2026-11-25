@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpRequest
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.utils import timezone
 import pandas as pd
 
 from .models import IngestedFile, CallRecord, Agent, ThresholdConfig
@@ -92,11 +93,16 @@ class UploadExcelView(View):
                 call_objects = []
                 for _, row in df_valid.iterrows():
                     code = str(row['agent_code']).strip()
+                    call_dt = None
+                    if pd.notna(row['call_datetime']):
+                        dt_candidate = row['call_datetime'].to_pydatetime() if hasattr(row['call_datetime'], 'to_pydatetime') else row['call_datetime']
+                        call_dt = timezone.make_aware(dt_candidate, timezone.get_current_timezone()) if timezone.is_naive(dt_candidate) else dt_candidate
+
                     call_objects.append(CallRecord(
                         call_id=str(row['call_id']),
                         ingested_file=ingested,
                         agent=agents_dict.get(code),
-                        call_datetime=row['call_datetime'] if pd.notna(row['call_datetime']) else None,
+                        call_datetime=call_dt,
                         call_type=str(row['call_type']),
                         call_status=str(row['call_status']),
                         total_duration_seconds=float(row['total_duration']),
