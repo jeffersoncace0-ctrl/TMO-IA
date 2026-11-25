@@ -67,11 +67,21 @@ class AutomationSchedulerService:
 
         with self._init_lock:
             if not self._scheduler.running:
+                # Tarea 1: Auditoría de Llamadas y TMO
                 self._scheduler.add_job(
                     func=self.run_audit_pipeline,
                     trigger=IntervalTrigger(minutes=interval),
                     id=self._job_id,
                     name="Corte Periódico y Auditoría de TMO",
+                    replace_existing=True,
+                    kwargs={'trigger_type': 'SCHEDULED'}
+                )
+                # Tarea 2: Auditoría Continua de Documentos Comerciales ETL
+                self._scheduler.add_job(
+                    func=self.run_commercial_audit_pipeline,
+                    trigger=IntervalTrigger(minutes=5),
+                    id="commercial_etl_audit_job",
+                    name="Auditoría Continua de Documentos Comerciales",
                     replace_existing=True,
                     kwargs={'trigger_type': 'SCHEDULED'}
                 )
@@ -297,6 +307,48 @@ class AutomationSchedulerService:
 
         finally:
             self._execution_lock.release()
+
+    def run_commercial_audit_pipeline(self, trigger_type: str = 'SCHEDULED') -> Optional[Any]:
+        """Ejecuta la auditoría y validación automática de documentos comerciales pendientes."""
+        from apps.documents.models import UploadedDocument
+        from apps.documents.services import process_document_etl
+
+        pending_docs = UploadedDocument.objects.filter(status='PENDING')
+        if not pending_docs.exists():
+            return None
+
+        started_at = timezone.now()
+        log_entry = ExecutionLog.objects.create(
+            job_name="Auditoría Continua de Documentos Comerciales",
+            trigger_type=trigger_type,
+            status='RUNNING',
+            started_at=started_at
+        )
+        total_records = 0
+        try:
+            for doc in pending_docs:
+                success, msg = process_document_etl(doc)
+                if success:
+                    total_records += doc.row_count
+
+            finished_at = timezone.now()
+            log_entry.status = 'SUCCESS'
+            log_entry.finished_at = finished_at
+            log_entry.duration_seconds = round((finished_at - started_at).total_seconds(), 3)
+            log_entry.records_processed = total_records
+            log_entry.summary = f"Procesados {pending_docs.count()} documento(s) con {total_records} registros comerciales."
+            log_entry.save()
+            return log_entry
+        except Exception as exc:
+            finished_at = timezone.now()
+            log_entry.status = 'FAILED'
+            log_entry.finished_at = finished_at
+            log_entry.duration_seconds = round((finished_at - started_at).total_seconds(), 3)
+            log_entry.error_trace = traceback.format_exc()
+            log_entry.summary = f"Fallo en auditoría comercial: {str(exc)}"
+            log_entry.save()
+            return log_entry
+
 
     def get_next_run_time(self) -> Optional[datetime]:
         """Obtiene la fecha y hora calculada para el próximo disparo programado."""

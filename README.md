@@ -1,4 +1,4 @@
-# Plataforma Empresarial TMO-IA: Control Operativo, Analítica Interactiva y Automatización de Call Centers
+# Enterprise Suite 360°: Plataforma Unificada de Auditoría Comercial (ETL), Control de TMO y Analítica Reactiva
 
 [![Python Version](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-6.1.3-success.svg)](https://www.djangoproject.com/)
@@ -6,10 +6,10 @@
 [![Plotly](https://img.shields.io/badge/Plotly-7.2.0-orange.svg)](https://plotly.com/)
 [![Pandas](https://img.shields.io/badge/Pandas-3.1.1-darkblue.svg)](https://pandas.pydata.org/)
 [![APScheduler](https://img.shields.io/badge/APScheduler-3.11.3-yellow.svg)](https://apscheduler.readthedocs.io/)
-[![Pytest Suite](https://img.shields.io/badge/Tests-36%20Passed-brightgreen.svg)](https://pytest.org/)
+[![Pytest Suite](https://img.shields.io/badge/Tests-39%20Passed-brightgreen.svg)](https://pytest.org/)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20%26%20SOLID-purple.svg)]()
 
-> **TMO-IA** es una plataforma web enterprise de analítica operativa, auditoría de llamadas y automatización en segundo plano diseñada para operaciones BPO y Call Centers. Implementada **exclusivamente en Python puro**, integra el backend transaccional de **Django**, dashboards reactivos con **Dash & Plotly** montados en la capa WSGI, ingesta resiliente con **Pandas**, generación de libros Excel nativos con **OpenPyXL** y un motor de tareas programadas con **APScheduler**.
+> **Enterprise Suite 360°** es una macro-plataforma web unificada de analítica corporativa, auditoría financiera de facturación y control operativo de Call Centers. Integra en **100% Python puro** el backend transaccional de **Django 6**, dos dashboards interactivos con **Dash & Plotly** montados en la capa WSGI, pipelines ETL de normalización con **Pandas**, generación de libros contables y operativos nativos con **OpenPyXL**, y un motor persistente de tareas programadas con **APScheduler**.
 
 ---
 

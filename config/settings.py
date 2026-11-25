@@ -30,7 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Aplicaciones modulares del proyecto TMO
+    # Módulos del Sistema Unificado (Enterprise Core & Call Center TMO)
+    'apps.authentication.apps.AuthenticationConfig',
+    'apps.documents.apps.DocumentsConfig',
     'apps.core.apps.CoreConfig',
     'apps.operations.apps.OperationsConfig',
     'apps.analytics.apps.AnalyticsConfig',
@@ -192,3 +194,9 @@ EMAIL_HOST_USER = os.getenv('SMTP_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('SMTP_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('SMTP_FROM_EMAIL', 'notificaciones@empresa.com')
 SMTP_NOTIFICATION_RECIPIENT = os.getenv('SMTP_NOTIFICATION_RECIPIENT', 'paulcacerez768@gmail.com')
+
+# Configuración de Autenticación y Sesiones Corporativas
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/auth/login/'
+LOGIN_URL = '/auth/login/'
+

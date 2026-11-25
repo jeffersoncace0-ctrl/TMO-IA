@@ -35,6 +35,16 @@
         </div>
     </div>
 
+    <!-- Selector de Pestaña Analítica Unificada -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; display: flex; gap: 0.5rem;">
+        <a href="{% url 'analytics:dashboard' %}" style="flex: 1; text-align: center; text-decoration: none; padding: 0.6rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; background: #2563EB; color: white;">
+            📞 Operaciones Call Center (TMO Ponderado)
+        </a>
+        <a href="{% url 'analytics:commercial_dashboard' %}" style="flex: 1; text-align: center; text-decoration: none; padding: 0.6rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; background: transparent; color: var(--text-muted); border: 1px solid var(--border);">
+            📈 Auditoría Comercial (Ventas & Facturación)
+        </a>
+    </div>
+
     <!-- Contenedor del Dashboard Dash Reactivo Puro Python -->
     <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);">
         <iframe

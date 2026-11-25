@@ -1,7 +1,8 @@
 """Punto de Entrada WSGI para despliegue y servidores compatibles con WSGI.
 
-Monta la aplicación Django principal y despacha las rutas analíticas a la
-aplicación Dash mediante DispatcherMiddleware para entornos de producción.
+Monta la aplicación Django principal y despacha las rutas analíticas a las
+aplicaciones Dash correspondientes (Call Center TMO y Comercial / Facturación)
+mediante DispatcherMiddleware para entornos de producción.
 """
 
 import os
@@ -14,8 +15,11 @@ django_application = get_wsgi_application()
 
 try:
     from apps.analytics.dash_app import dash_app
+    from apps.analytics.commercial_dash_app import commercial_dash_app
+
     application = DispatcherMiddleware(django_application, {
         '/analitica/dash': dash_app.server,
+        '/dashboards/dash': commercial_dash_app.server,
     })
 except Exception:
     application = django_application

@@ -1,8 +1,8 @@
 """Vistas de la aplicación de Analítica e integración de Dash con Django.
 
-Proporciona el controlador del Dashboard principal y el adaptador WSGI de alta
-eficiencia para servir los componentes, layouts y callbacks de Dash a través
-del enrutador nativo de Django.
+Proporciona los controladores de los Dashboards principales (Call Center TMO y Comercial / Facturación)
+y los adaptadores WSGI de alta eficiencia para servir los componentes, layouts y callbacks de Dash
+a través del enrutador nativo de Django sin requerir Node.js.
 """
 
 from io import BytesIO
@@ -17,14 +17,16 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from apps.analytics.dash_app import dash_app
+from apps.analytics.commercial_dash_app import commercial_dash_app
 from apps.operations.models import CallRecord, ThresholdConfig
+from apps.documents.models import CommercialRecord, UploadedDocument
 from apps.automation.models import ExecutionLog
 
 logger = logging.getLogger('apps.analytics.views')
 
 
 class DashboardView(View):
-    """Vista contenedora principal que renderiza la plantilla corporativa con Dash."""
+    """Vista contenedora principal que renderiza el Dashboard de Call Center y TMO."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
         total_calls = CallRecord.objects.filter(is_valid=True).count()
@@ -37,17 +39,32 @@ class DashboardView(View):
             'total_calls': total_calls,
             'target_tmo': target_tmo,
             'last_execution': last_execution,
+            'active_tab': 'callcenter',
         }
         return render(request, 'analytics/dashboard.html', context)
 
 
+class CommercialDashboardView(View):
+    """Vista contenedora principal que renderiza el Dashboard de Auditoría Comercial y Facturación."""
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        total_records = CommercialRecord.objects.count()
+        total_documents = UploadedDocument.objects.count()
+        last_execution = ExecutionLog.objects.order_by('-started_at').first()
+
+        context: Dict[str, Any] = {
+            'title': 'Dashboard Comercial, Facturación & Pipeline ETL',
+            'total_records': total_records,
+            'total_documents': total_documents,
+            'last_execution': last_execution,
+            'active_tab': 'commercial',
+        }
+        return render(request, 'analytics/commercial_dashboard.html', context)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class DashAppView(View):
-    """Adaptador de nivel WSGI para despachar peticiones de Dash dentro del ciclo de vida de Django.
-
-    Permite que Dash sirva su layout, assets, dependencias y callbacks reactivos POST
-    sin requerir servidores proxy externos ni Node.js, operando 100% en Python.
-    """
+    """Adaptador de nivel WSGI para despachar peticiones de Dash TMO dentro del ciclo de vida de Django."""
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         environ = request.environ.copy()
@@ -76,10 +93,54 @@ class DashAppView(View):
             response_iter = dash_app.server.wsgi_app(environ, start_response)
             response_content = b''.join(response_iter)
         except Exception as exc:
-            logger.error("Error al procesar solicitud WSGI de Dash: %s", exc, exc_info=True)
+            logger.error("Error al procesar solicitud WSGI de Dash TMO: %s", exc, exc_info=True)
             return HttpResponse(f"Error interno en componente Dash: {str(exc)}", status=500)
 
         # Reconstruir respuesta HTTP compatible con Django
+        django_response = HttpResponse(content=response_content, status=status_code)
+
+        for header_key, header_val in headers_list:
+            key_lower = header_key.lower()
+            if key_lower == 'content-type':
+                django_response['Content-Type'] = header_val
+            elif key_lower not in ('content-length', 'content-encoding'):
+                django_response[header_key] = header_val
+
+        return django_response
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CommercialDashAppView(View):
+    """Adaptador de nivel WSGI para despachar peticiones de Dash Comercial dentro del ciclo de vida de Django."""
+
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        environ = request.environ.copy()
+
+        # Asegurar compatibilidad de PATH_INFO
+        path_info = environ.get('PATH_INFO', '')
+        if not path_info.startswith('/dashboards/dash'):
+            environ['PATH_INFO'] = f"/dashboards/dash{path_info}"
+
+        status_code = 200
+        headers_list = []
+
+        def start_response(status: str, headers: list, exc_info: Any = None) -> None:
+            nonlocal status_code, headers_list
+            status_code = int(status.split()[0])
+            headers_list = headers
+
+        if request.method in ('POST', 'PUT', 'PATCH'):
+            body_bytes = request.body
+            environ['wsgi.input'] = BytesIO(body_bytes)
+            environ['CONTENT_LENGTH'] = str(len(body_bytes))
+
+        try:
+            response_iter = commercial_dash_app.server.wsgi_app(environ, start_response)
+            response_content = b''.join(response_iter)
+        except Exception as exc:
+            logger.error("Error al procesar solicitud WSGI de Dash Comercial: %s", exc, exc_info=True)
+            return HttpResponse(f"Error interno en componente Dash Comercial: {str(exc)}", status=500)
+
         django_response = HttpResponse(content=response_content, status=status_code)
 
         for header_key, header_val in headers_list:

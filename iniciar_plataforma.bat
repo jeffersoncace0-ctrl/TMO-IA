@@ -31,12 +31,14 @@ echo.
 echo [3/3] Iniciando servidor web en http://127.0.0.1:8000 ...
 echo.
 echo =====================================================================
-echo   PANELES DISPONIBLES:
-echo   - Inicio Operativo:       http://127.0.0.1:8000/
-echo   - Subida de Excel:        http://127.0.0.1:8000/operaciones/subir/
-echo   - Dashboard Dash:         http://127.0.0.1:8000/analitica/
-echo   - Panel de Automatizacion:http://127.0.0.1:8000/automatizacion/panel/
-echo   - Administracion Django:  http://127.0.0.1:8000/admin/
+echo   PANELES UNIFICADOS DISPONIBLES:
+echo   - Portal Gerencial 360:      http://127.0.0.1:8000/
+echo   - Auditoria Comercial (ETL):  http://127.0.0.1:8000/documentos/
+echo   - Dashboard Comercial Dash:   http://127.0.0.1:8000/analitica/comercial/
+echo   - Ingesta Call Center TMO:    http://127.0.0.1:8000/operaciones/cargar/
+echo   - Dashboard TMO Reactivo:     http://127.0.0.1:8000/analitica/
+echo   - Centro de Automatizacion:   http://127.0.0.1:8000/automatizacion/panel/
+echo   - Administracion Django:      http://127.0.0.1:8000/admin/
 echo =====================================================================
 echo Presiona CTRL+C para detener el servidor.
 echo.

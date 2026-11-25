@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Comercial & Facturación | Enterprise Core{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary px-3 py-2 text-uppercase fw-bold" style="letter-spacing: 0.05em; font-size: 0.75rem;">
+                <i class="bi bi-graph-up-arrow me-1"></i> Auditoría Financiera
+            </span>
+            <span class="badge bg-light text-dark border px-3 py-2 fw-semibold">
+                Pipeline ETL Activo
+            </span>
+        </div>
+        <h2 class="h3 fw-bold text-dark mt-2 mb-1">Analítica Comercial, Ventas y Facturación</h2>
+        <p class="text-muted mb-0 small">
+            Visualización reactiva 100% Python con Plotly & Dash. Filtros dinámicos por región, categoría de producto y estado.
+        </p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <div class="btn-group shadow-sm">
+            <a href="{% url 'analytics:dashboard' %}" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="bi bi-headset me-1"></i> Dashboard Call Center
+            </a>
+            <a href="{% url 'documents:list' %}" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Subir Documentos ETL
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Selector de Pestaña Analítica -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-2 bg-light rounded">
+        <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+                <a class="nav-link py-2 fw-semibold text-muted" href="{% url 'analytics:dashboard' %}">
+                    <i class="bi bi-telephone-inbound me-2"></i> Operaciones Call Center (TMO Ponderado)
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active py-2 fw-bold bg-primary text-white" href="{% url 'analytics:commercial_dashboard' %}">
+                    <i class="bi bi-receipt me-2"></i> Auditoría Comercial (Ventas & Facturación)
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Contenedor del Dashboard Dash Reactivo Comercial -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-0 fw-bold text-dark fs-6">
+                <i class="bi bi-speedometer2 text-primary me-2"></i> Tablero Ejecutivo Reactivo
+            </h5>
+            <small class="text-muted">Despachado directamente por WSGI sin recargar la página</small>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-light text-secondary border">
+                <i class="bi bi-database me-1"></i> {{ total_records }} Registros en Base de Datos
+            </span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('dashCommercialFrame').contentWindow.location.reload();">
+                <i class="bi bi-arrow-clockwise"></i> Refrescar
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <iframe 
+            id="dashCommercialFrame"
+            src="/analitica/comercial/dash/" 
+            style="width: 100%; min-height: 850px; border: none; display: block;"
+            title="Tablero Comercial Interactivo Dash"
+            loading="lazy">
+        </iframe>
+    </div>
+</div>
+{% endblock %}

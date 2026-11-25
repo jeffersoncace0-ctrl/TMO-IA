@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión Documental & Pipeline ETL - Enterprise Core{% endblock %}
+
+{% block top_header_content %}
+<div class="header-accent-bar"></div>
+<h1 class="header-main-title">Gestión Documental & Pipeline ETL</h1>
+<p class="header-subtext">Ingesta automatizada, validación estricta de esquemas contables y persistencia relacional por lotes.</p>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Formulario de Ingesta y Carga -->
+    <div class="col-lg-7">
+        <div class="white-clean-card h-100" style="padding: 1.75rem;">
+            <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="metric-icon-circle icon-blue">
+                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold text-dark mb-0" style="font-size: 1.15rem;">Ingesta y Validación de Archivos</h4>
+                        <span class="text-secondary small" style="font-size: 0.8rem;">Carga directa de planillas comerciales para procesamiento ETL</span>
+                    </div>
+                </div>
+                <span class="tag-pill tag-pill-blue">8 Columnas</span>
+            </div>
+
+            <p class="text-secondary mb-3" style="font-size: 0.875rem; line-height: 1.6;">
+                Seleccione un libro en formato <strong class="text-dark">.xlsx</strong> o <strong class="text-dark">.csv</strong>. El motor verificará cabeceras, coerciona tipos y ejecutará inserciones atómicas en lotes de 500 registros:
+            </p>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="rounded-3 mb-3" style="padding: 1.5rem; background: #F8FAFC; border: 2px dashed #CBD5E1; text-align: center;">
+                    <i class="bi bi-file-earmark-arrow-up text-primary fs-2 d-block mb-2"></i>
+                    <div class="fw-semibold text-dark small mb-1">Arrastre o seleccione el archivo de facturación</div>
+                    <div class="text-secondary small mb-3" style="font-size: 0.78rem;">Soporta formatos estándar .xlsx, .xls y .csv (hasta 25 MB)</div>
+                    <div class="d-inline-block">
+                        {{ form.file }}
+                    </div>
+                </div>
+
+                {% if form.file.errors %}
+                    <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3" style="font-size: 0.825rem;">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ form.file.errors.0 }}
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <span class="text-secondary small" style="font-size: 0.78rem;">Validación en memoria sin pérdida de datos</span>
+                    <button type="submit" class="btn-action-primary py-2 px-3">
+                        <i class="bi bi-cpu-fill"></i>
+                        <span>Procesar Archivo con Pipeline ETL</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Descarga de Plantilla y Generador Rápido -->
+    <div class="col-lg-5">
+        <div class="white-clean-card h-100 d-flex flex-column justify-content-between" style="padding: 1.75rem;">
+            <div>
+                <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="metric-icon-circle icon-green">
+                            <i class="bi bi-file-earmark-excel-fill"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold text-dark mb-0" style="font-size: 1.15rem;">Plantilla Oficial de Prueba</h4>
+                            <span class="text-secondary small" style="font-size: 0.8rem;">Datos estructurados y auditables</span>
+                        </div>
+                    </div>
+                    <span class="tag-pill tag-pill-green">Listo para Ingesta</span>
+                </div>
+
+                <p class="text-secondary mb-3" style="font-size: 0.875rem; line-height: 1.6;">
+                    Utilice este archivo oficial con 50 facturas comerciales formateadas para auditar y verificar el pipeline de forma inmediata:
+                </p>
+
+                <a href="/media/plantilla_prueba_auditoria.xlsx" download class="btn-action-primary w-100 justify-content-center py-2 mb-3">
+                    <i class="bi bi-download"></i>
+                    <span>Descargar Plantilla Excel (.xlsx)</span>
+                </a>
+            </div>
+
+            <div class="rounded-3" style="padding: 1.25rem; background: #F8FAFC; border: 1px solid var(--border-card);">
+                <span class="text-dark fw-semibold small d-block mb-1">Simulación Instantánea en Base de Datos:</span>
+                <p class="text-secondary small mb-3" style="font-size: 0.78rem;">
+                    Inyecte 120 facturas generadas programáticamente para pruebas masivas de carga y estrés del scheduler.
+                </p>
+                <form method="post" action="{% url 'documents:generate_sample' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action-secondary w-100 justify-content-center py-2">
+                        <i class="bi bi-database-add text-primary"></i>
+                        <span>Generar 120 Facturas en Base de Datos</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de Documentos Cargados -->
+<div class="white-clean-card" style="padding: 1.75rem;">
+    <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-folder2-open text-primary fs-5"></i>
+            <h4 class="fw-bold text-dark mb-0" style="font-size: 1.1rem;">Repositorio de Archivos Auditados</h4>
+        </div>
+        <span class="tag-pill tag-pill-neutral">
+            {{ documents|length }} Documentos Registrados
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-clean-light">
+            <thead>
+                <tr>
+                    <th>NOMBRE DE ARCHIVO</th>
+                    <th>TIPO</th>
+                    <th>TAMAÑO</th>
+                    <th>ESTADO</th>
+                    <th class="text-center">REGISTROS</th>
+                    <th class="text-end">FECHA DE CARGA</th>
+                    <th class="text-end">ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="metric-icon-circle icon-green" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                                <i class="bi bi-file-earmark-excel"></i>
+                            </div>
+                            <span class="fw-semibold text-dark">{{ doc.filename }}</span>
+                        </div>
+                    </td>
+                    <td><span class="tag-pill tag-pill-neutral">{{ doc.file_type }}</span></td>
+                    <td class="text-secondary small tabular-nums">{{ doc.file_size_bytes|filesizeformat }}</td>
+                    <td>
+                        {% if doc.status == 'COMPLETED' %}
+                            <span class="tag-pill tag-pill-green">
+                                <i class="bi bi-check2"></i> Completado
+                            </span>
+                        {% elif doc.status == 'PROCESSING' %}
+                            <span class="tag-pill tag-pill-blue">
+                                <i class="bi bi-arrow-repeat"></i> Procesando
+                            </span>
+                        {% elif doc.status == 'FAILED' %}
+                            <span class="tag-pill tag-pill-neutral text-danger" title="{{ doc.error_message }}">
+                                <i class="bi bi-x-circle"></i> Error
+                            </span>
+                        {% else %}
+                            <span class="tag-pill tag-pill-neutral">
+                                Pendiente
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center text-dark fw-bold tabular-nums">{{ doc.row_count }}</td>
+                    <td class="text-end text-secondary tabular-nums small">{{ doc.uploaded_at|date:"d/m/Y H:i" }}</td>
+                    <td class="text-end">
+                        <div class="d-inline-flex gap-2">
+                            <a href="{{ doc.file.url }}" class="btn-action-secondary py-1 px-2" download title="Descargar original">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            <form method="post" action="{% url 'documents:reprocess' doc.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action-secondary py-1 px-2" title="Reprocesar pipeline ETL">
+                                    <i class="bi bi-arrow-repeat text-primary"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-secondary">
+                        <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                        No hay documentos cargados en el repositorio actualmente.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

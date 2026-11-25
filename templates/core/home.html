@@ -1,58 +1,218 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Inicio | Plataforma Inteligente TMO{% endblock %}
+{% block title %}Portal Gerencial 360° | Enterprise Core & Call Center TMO{% endblock %}
 
 {% block content %}
-<div style="display: grid; gap: 2rem;">
-    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem; text-align: center;">
-        <span style="background: rgba(59, 130, 246, 0.1); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">
-            Arquitectura 100% Python
-        </span>
-        <h2 style="font-size: 2.25rem; font-weight: 800; margin: 1rem 0 0.5rem; color: #FFFFFF;">
-            Plataforma Inteligente de Control de TMO y Automatización
-        </h2>
-        <p style="color: var(--text-muted); max-width: 800px; margin: 0 auto 2rem; font-size: 1.1rem;">
-            Solución empresarial de alto rendimiento para centros de contacto BPO. Ingesta determinista de registros de llamadas, cálculo de TMO ponderado sin sesgo, analítica reactiva con Dash y alertas horarias automáticas mediante APScheduler.
-        </p>
+<!-- Banner de Bienvenida y Acciones Rápidas -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #090E1A 0%, #1E293B 100%);">
+    <div class="card-body p-4 p-md-5 text-white">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary px-3 py-2 text-uppercase fw-bold mb-3" style="letter-spacing: 0.05em; font-size: 0.75rem;">
+                    <i class="bi bi-shield-check me-1"></i> Plataforma Empresarial Unificada
+                </span>
+                <h1 class="display-6 fw-bold mb-2">Suite Integral: Finanzas, ETL y Operaciones de Call Center</h1>
+                <p class="text-light opacity-75 mb-4" style="max-width: 650px; font-size: 0.95rem;">
+                    Arquitectura unificada 100% Python que centraliza la auditoría de facturación comercial, el cálculo matemático estricto de TMO ponderado, reportes nativos en OpenPyXL y tableros interactivos con Plotly & Dash.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'operations:upload_excel' %}" class="btn btn-primary px-3 py-2 fw-semibold">
+                        <i class="bi bi-cloud-arrow-up me-1"></i> Cargar Telefonía TMO
+                    </a>
+                    <a href="{% url 'documents:list' %}" class="btn btn-outline-light px-3 py-2 fw-semibold">
+                        <i class="bi bi-receipt me-1"></i> Cargar Facturas ETL
+                    </a>
+                    <a href="{% url 'analytics:dashboard' %}" class="btn btn-light px-3 py-2 fw-semibold text-dark">
+                        <i class="bi bi-bar-chart me-1"></i> Dashboard TMO
+                    </a>
+                    <a href="{% url 'analytics:commercial_dashboard' %}" class="btn btn-light px-3 py-2 fw-semibold text-dark">
+                        <i class="bi bi-graph-up me-1"></i> Dashboard Comercial
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 d-inline-block">
+                    <i class="bi bi-cpu text-info" style="font-size: 3.5rem;"></i>
+                    <div class="mt-2 fw-bold text-white small">Motor Concurrente APScheduler</div>
+                    <div class="badge bg-success bg-opacity-75 mt-1">Auditoría 24/7 Activa</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <a href="{% url 'operations:upload_excel' %}" style="background: #2563EB; color: white; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
-                📥 Cargar Archivo Excel
-            </a>
-            <a href="{% url 'analytics:dashboard' %}" style="background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border); color: #F8FAFC; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                📈 Explorar Dashboard
-            </a>
+<!-- Sección 1: Dos Bloques Estratégicos de Dominio -->
+<div class="row g-4 mb-4">
+    <!-- Bloque A: Auditoría Comercial & Facturación -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark fs-6">
+                        <i class="bi bi-cash-stack text-success me-2"></i> Auditoría Comercial & Facturación (ETL)
+                    </h5>
+                    <small class="text-muted">Procesamiento de documentos masivos, clientes y ventas</small>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1">Módulo Activo</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Documentos</div>
+                            <div class="h4 fw-bold text-dark mb-0 mt-1">{{ total_documents }}</div>
+                            <small class="text-success" style="font-size: 0.72rem;">{{ completed_documents }} completados</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Facturas</div>
+                            <div class="h4 fw-bold text-dark mb-0 mt-1">{{ total_commercial_records }}</div>
+                            <small class="text-muted" style="font-size: 0.72rem;">Filas auditadas</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Facturado</div>
+                            <div class="h4 fw-bold text-primary mb-0 mt-1">${{ total_revenue|floatformat:0 }}</div>
+                            <small class="text-muted" style="font-size: 0.72rem;">Monto global</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'documents:list' %}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="bi bi-folder2-open me-1"></i> Ver Documentos Cargados
+                    </a>
+                    <a href="{% url 'analytics:commercial_dashboard' %}" class="btn btn-primary btn-sm flex-fill">
+                        <i class="bi bi-graph-up-arrow me-1"></i> Abrir Tablero Comercial
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
-            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">⚙️</div>
-            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">Django 5 Backend</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                Modelos de base de datos relacionales, autenticación, pipeline de enrutamiento y administración segura.
-            </p>
+    <!-- Bloque B: Control Operativo & TMO Call Center -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark fs-6">
+                        <i class="bi bi-headset text-primary me-2"></i> Operaciones de Call Center & TMO
+                    </h5>
+                    <small class="text-muted">Cálculo de TMO ponderado, Z-score y reportes OpenPyXL</small>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1">Módulo Activo</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Llamadas</div>
+                            <div class="h4 fw-bold text-dark mb-0 mt-1">{{ total_calls }}</div>
+                            <small class="text-primary" style="font-size: 0.72rem;">Registros PBX</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Asesores</div>
+                            <div class="h4 fw-bold text-dark mb-0 mt-1">{{ total_agents }}</div>
+                            <small class="text-muted" style="font-size: 0.72rem;">En operación</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">TMO Global</div>
+                            <div class="h4 fw-bold text-success mb-0 mt-1">{{ global_tmo }} s</div>
+                            <small class="text-muted" style="font-size: 0.72rem;">Ponderado real</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'operations:calls_list' %}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="bi bi-list-columns-reverse me-1"></i> Ver Tabla de Llamadas
+                    </a>
+                    <a href="{% url 'analytics:dashboard' %}" class="btn btn-primary btn-sm flex-fill">
+                        <i class="bi bi-pie-chart me-1"></i> Abrir Tablero TMO
+                    </a>
+                </div>
+            </div>
         </div>
-        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
-            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📊</div>
-            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">Dash + Plotly</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                Visualizaciones interactivas de TMO, filtrado dinámico y gráficos vectoriales nativos sin JavaScript manual.
-            </p>
+    </div>
+</div>
+
+<!-- Sección 2: Historial Reciente de Automatizaciones -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-0 text-dark fs-6">
+                <i class="bi bi-clock-history text-secondary me-2"></i> Actividad Reciente del Planificador (APScheduler)
+            </h5>
+            <small class="text-muted">Cortes periódicos de TMO, validaciones ETL y alertas despachadas</small>
         </div>
-        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
-            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">⚡</div>
-            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">Pandas Vectorizado</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                Saneamiento de datasets, cálculo ponderado de TMO y detección de outliers mediante Z-score > 2.0.
-            </p>
-        </div>
-        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
-            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">⏰</div>
-            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">APScheduler</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                Programación de reportes horarios, generación de libros de 4 hojas en Excel y despacho de alertas SMTP.
-            </p>
+        <a href="{% url 'automation:panel' %}" class="btn btn-sm btn-outline-secondary">
+            Ver Panel Completo <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Tarea / Proceso</th>
+                        <th>Tipo de Disparo</th>
+                        <th>Estado</th>
+                        <th>Inicio</th>
+                        <th>Duración</th>
+                        <th>Registros</th>
+                        <th class="pe-4">Resumen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td class="ps-4 fw-semibold text-dark">
+                            {{ log.job_name }}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                {{ log.get_trigger_type_display|default:log.trigger_type }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if log.status == 'SUCCESS' %}
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold">Completado</span>
+                            {% elif log.status == 'RUNNING' %}
+                                <span class="badge bg-info bg-opacity-10 text-info fw-bold">En Ejecución</span>
+                            {% elif log.status == 'WARNING' %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning fw-bold">Advertencia</span>
+                            {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">Fallido</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">
+                            {{ log.started_at|date:"Y-m-d H:i:s" }}
+                        </td>
+                        <td class="text-muted small">
+                            {{ log.duration_seconds }} s
+                        </td>
+                        <td class="fw-semibold">
+                            {{ log.records_processed }}
+                        </td>
+                        <td class="pe-4 text-muted small text-truncate" style="max-width: 300px;">
+                            {{ log.summary|default:"Corrida finalizada exitosamente." }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-info-circle me-1"></i> No hay ejecuciones registradas en este momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
