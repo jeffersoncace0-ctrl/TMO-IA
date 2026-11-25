@@ -1,11 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Dashboard Analítico | TMO Enterprise{% endblock %}
+
+{% block title %}Dashboard Analítico Interactivo | TMO Enterprise{% endblock %}
+
 {% block content %}
-<div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem;">
-    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #60A5FA;">📊 Dashboard Analítico Reactivo (Dash & Plotly)</h2>
-    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Visualización de KPIs, comparativo de TMO vs. Umbral y distribución de estados.</p>
-    <div style="padding: 2rem; border: 2px dashed var(--border); border-radius: 8px; text-align: center; color: var(--text-muted);">
-        Componente Dash en construcción para la Fase 5.
+<div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+    <!-- Barra Superior de Contexto Operativo y Enlaces Rápidos -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <h2 style="font-size: 1.4rem; font-weight: 700; color: #60A5FA; margin: 0;">📊 Centro de Analítica & Control de TMO</h2>
+                    <span style="background: #065F46; color: #34D399; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 9999px;">● TIEMPO REAL (DASH & PLOTLY)</span>
+                </div>
+                <div style="display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                    <div>Llamadas Activas: <strong style="color: #F8FAFC;">{{ total_calls }}</strong></div>
+                    <div>Meta Oficial: <strong style="color: #60A5FA;">{{ target_tmo }} s</strong></div>
+                    <div>Última Auditoría Programada: <strong style="color: #F8FAFC;">{{ last_execution.started_at|date:"Y-m-d H:i:s"|default:"Pendiente" }}</strong></div>
+                </div>
+            </div>
+
+            <!-- Accesos Rápidos de Navegación -->
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <a href="{% url 'operations:upload_excel' %}" style="background: #2563EB; color: white; text-decoration: none; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <span>📤</span> Ingestar Nuevo Excel
+                </a>
+                <a href="{% url 'automation:panel' %}" style="background: #334155; color: #F8FAFC; text-decoration: none; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <span>⏰</span> Panel de Automatizaciones
+                </a>
+                <a href="{% url 'operations:calls_list' %}" style="background: transparent; color: #94A3B8; border: 1px solid var(--border); text-decoration: none; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500;">
+                    📋 Tabla Cruda
+                </a>
+            </div>
+        </div>
     </div>
+
+    <!-- Contenedor del Dashboard Dash Reactivo Puro Python -->
+    <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);">
+        <iframe
+            src="/analitica/dash/"
+            style="width: 100%; min-height: 1250px; border: none; display: block;"
+            title="Dashboard Interactivo Dash y Plotly"
+            loading="eager"
+        >
+            <p>Su navegador no soporta iframes. Puede acceder al dashboard directamente en <a href="/analitica/dash/">/analitica/dash/</a>.</p>
+        </iframe>
+    </div>
+
 </div>
 {% endblock %}
