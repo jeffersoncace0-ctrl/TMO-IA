@@ -54,6 +54,10 @@ venv/
 .venv/
 pip-log.txt
 pip-delete-this-directory.txt
+db.sqlite3
+media/
+media/*
+!media/.gitkeep
 
 # Archive bundles
 *.zip

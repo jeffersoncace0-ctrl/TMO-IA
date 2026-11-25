@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Automatización y Scheduler | TMO Enterprise{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+    <!-- Mensajes de notificación Django -->
+    {% if messages %}
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        {% for message in messages %}
+        <div style="padding: 1rem 1.25rem; border-radius: 8px; font-size: 0.95rem; font-weight: 500;
+            {% if message.tags == 'error' %}background: #450A0A; border: 1px solid #991B1B; color: #FCA5A5;
+            {% elif message.tags == 'warning' %}background: #451A03; border: 1px solid #92400E; color: #FCD34D;
+            {% else %}background: #064E3B; border: 1px solid #065F46; color: #A7F3D0;{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Encabezado del Panel y Controles Principales -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #60A5FA;">⏰ Motor de Automatización (APScheduler)</h2>
+                    {% if scheduler_status.is_running and not scheduler_status.is_paused %}
+                        <span style="background: #065F46; color: #34D399; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 9999px; letter-spacing: 0.05em;">● ACTIVO / EN EJECUCIÓN</span>
+                    {% elif scheduler_status.is_paused %}
+                        <span style="background: #78350F; color: #FBBF24; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 9999px; letter-spacing: 0.05em;">⏸ PAUSADO</span>
+                    {% else %}
+                        <span style="background: #374151; color: #9CA3AF; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 9999px; letter-spacing: 0.05em;">○ INACTIVO</span>
+                    {% endif %}
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Corte automático programado cada <strong>{{ scheduler_status.interval_minutes }} minutos</strong>. 
+                    Calcula TMO ponderado, genera reporte en Excel (4 pestañas) y despacha alerta corporativa vía SMTP.
+                </p>
+                <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #94A3B8;">
+                    <strong>Próximo corte programado:</strong> <span style="color: #F8FAFC;">{{ scheduler_status.next_run_time }}</span>
+                </div>
+            </div>
+
+            <!-- Botones de Acción Inmediata (POST Forms nativos) -->
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <form action="{% url 'automation:trigger' %}" method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: #2563EB; hover:background: #1D4ED8; color: white; border: none; border-radius: 8px; padding: 0.75rem 1.25rem; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>🚀</span> Ejecutar Auditoría Ahora (Manual)
+                    </button>
+                </form>
+
+                <form action="{% url 'automation:toggle' %}" method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    {% if scheduler_status.is_running and not scheduler_status.is_paused %}
+                        <button type="submit" style="background: #475569; color: white; border: none; border-radius: 8px; padding: 0.75rem 1.25rem; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+                            ⏸ Pausar Automatización
+                        </button>
+                    {% else %}
+                        <button type="submit" style="background: #059669; color: white; border: none; border-radius: 8px; padding: 0.75rem 1.25rem; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+                            ▶ Reanudar Automatización
+                        </button>
+                    {% endif %}
+                </form>
+
+                <a href="/admin/automation/automationalertrecipient/" style="background: transparent; color: #94A3B8; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; font-weight: 500; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center;">
+                    ⚙ Gestionar Destinatarios
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Métricas de Fiabilidad del Motor -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Total Ejecuciones</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: #F8FAFC; margin-top: 0.25rem;">{{ metrics.total_runs }}</div>
+            <div style="font-size: 0.8rem; color: #60A5FA; margin-top: 0.25rem;">Histórico auditado</div>
+        </div>
+
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Exitosas</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: #34D399; margin-top: 0.25rem;">{{ metrics.successful_runs }}</div>
+            <div style="font-size: 0.8rem; color: #10B981; margin-top: 0.25rem;">Tasa de Éxito: {{ metrics.success_rate }}%</div>
+        </div>
+
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Con Advertencia</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: #FBBF24; margin-top: 0.25rem;">{{ metrics.warning_runs }}</div>
+            <div style="font-size: 0.8rem; color: #F59E0B; margin-top: 0.25rem;">Sin registros o desvíos</div>
+        </div>
+
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Fallidas</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: #F87171; margin-top: 0.25rem;">{{ metrics.failed_runs }}</div>
+            <div style="font-size: 0.8rem; color: #EF4444; margin-top: 0.25rem;">Capturadas en log estructurado</div>
+        </div>
+    </div>
+
+    <!-- Lista de Destinatarios Activos para Notificaciones -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #F8FAFC;">📧 Destinatarios de Alertas Automáticas (SMTP)</h3>
+            <a href="/admin/automation/automationalertrecipient/add/" style="color: #60A5FA; font-size: 0.85rem; text-decoration: none;">+ Agregar Destinatario</a>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% if recipients %}
+                {% for recipient in recipients %}
+                <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: {% if recipient.is_active %}#34D399{% else %}#9CA3AF{% endif %}; font-size: 0.7rem;">●</span>
+                    <strong>{{ recipient.name }}</strong>
+                    <span style="color: var(--text-muted);">&lt;{{ recipient.email }}&gt;</span>
+                    {% if recipient.notify_on_critical_only %}
+                    <span style="background: #78350F; color: #FBBF24; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 4px;">Solo Críticos</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="color: var(--text-muted); font-size: 0.85rem;">
+                    Configuración por defecto en <code>.env</code> (Destinatario: <code>paulcacerez768@gmail.com</code>).
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Historial Inmutable de Auditorías (ExecutionLog) -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #F8FAFC;">📜 Historial de Ejecuciones y Auditorías</h3>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Mostrando las últimas {{ recent_logs|length }} corridas</span>
+        </div>
+
+        {% if recent_logs %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">
+                        <th style="padding: 0.75rem;">ID</th>
+                        <th style="padding: 0.75rem;">Fecha y Hora</th>
+                        <th style="padding: 0.75rem;">Disparo</th>
+                        <th style="padding: 0.75rem;">Estado</th>
+                        <th style="padding: 0.75rem;">Duración</th>
+                        <th style="padding: 0.75rem; text-align: right;">Llamadas</th>
+                        <th style="padding: 0.75rem; text-align: right;">Asesores</th>
+                        <th style="padding: 0.75rem; text-align: right;">Críticos</th>
+                        <th style="padding: 0.75rem; text-align: right;">TMO Global</th>
+                        <th style="padding: 0.75rem; text-align: center;">Correo</th>
+                        <th style="padding: 0.75rem; text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr style="border-bottom: 1px solid rgba(51, 65, 85, 0.5);">
+                        <td style="padding: 0.75rem; font-weight: 700; color: #94A3B8;">#{{ log.id }}</td>
+                        <td style="padding: 0.75rem; color: #F8FAFC;">{{ log.started_at|date:"Y-m-d H:i:s" }}</td>
+                        <td style="padding: 0.75rem;">
+                            {% if log.trigger_type == 'SCHEDULED' %}
+                                <span style="background: #1E3A8A; color: #93C5FD; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px;">AUTOMÁTICO</span>
+                            {% else %}
+                                <span style="background: #4C1D95; color: #C4B5FD; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px;">MANUAL</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 0.75rem;">
+                            {% if log.status == 'SUCCESS' %}
+                                <span style="background: #065F46; color: #34D399; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px;">EXITOSO</span>
+                            {% elif log.status == 'WARNING' %}
+                                <span style="background: #78350F; color: #FBBF24; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px;">ALERTA</span>
+                            {% elif log.status == 'RUNNING' %}
+                                <span style="background: #1E3A8A; color: #60A5FA; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px;">EN CURSO</span>
+                            {% else %}
+                                <span style="background: #7F1D1D; color: #F87171; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px;">FALLIDO</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 0.75rem; color: #94A3B8;">{{ log.duration_seconds }} s</td>
+                        <td style="padding: 0.75rem; text-align: right; font-weight: 600;">{{ log.records_processed }}</td>
+                        <td style="padding: 0.75rem; text-align: right;">{{ log.agents_evaluated }}</td>
+                        <td style="padding: 0.75rem; text-align: right; color: {% if log.critical_agents > 0 %}#F87171{% else %}#34D399{% endif %}; font-weight: 700;">
+                            {{ log.critical_agents }}
+                        </td>
+                        <td style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                            {% if log.global_weighted_tmo > 0 %}
+                                {{ log.global_weighted_tmo }} min
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td style="padding: 0.75rem; text-align: center;">
+                            {% if log.email_sent %}
+                                <span title="Correo enviado con éxito" style="color: #34D399; font-weight: 700;">✔ Sí</span>
+                            {% else %}
+                                <span title="No despachado" style="color: #94A3B8;">✖ No</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 0.75rem; text-align: center;">
+                            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                                <a href="{% url 'automation:log_detail' log.id %}" style="background: #334155; color: #F8FAFC; text-decoration: none; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">
+                                    Detalle
+                                </a>
+                                {% if log.report_file_path %}
+                                <a href="{% url 'automation:download_report' log.id %}" style="background: #065F46; color: #A7F3D0; text-decoration: none; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem;" title="Descargar libro Excel oficial">
+                                    📥 Excel
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); border: 2px dashed var(--border); border-radius: 8px;">
+            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No se registran ejecuciones en el historial aún.</p>
+            <p style="font-size: 0.9rem;">Haga clic en <strong>"Ejecutar Auditoría Ahora (Manual)"</strong> o espere el ciclo programado del scheduler.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

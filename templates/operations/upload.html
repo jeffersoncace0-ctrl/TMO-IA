@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Ingesta de Archivos | TMO Enterprise{% endblock %}
+
+{% block content %}
+<div style="display: grid; gap: 2rem;">
+    <!-- Encabezado -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #FFFFFF;">📥 Ingesta y Saneamiento de Archivos</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Carga de registros de llamadas en Excel (.xlsx, .xls) con saneamiento determinista y detección de duplicados.
+            </p>
+        </div>
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 0.5rem 1rem; border-radius: 8px;">
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Umbral Activo:</span>
+            <strong style="color: #60A5FA; margin-left: 0.25rem;">{{ active_threshold }} seg</strong>
+        </div>
+    </div>
+
+    <!-- Mensajes de feedback -->
+    {% if messages %}
+        <div style="display: grid; gap: 0.5rem;">
+            {% for msg in messages %}
+                <div style="padding: 1rem; border-radius: 8px; font-size: 0.95rem; font-weight: 500;
+                    {% if msg.tags == 'success' %}background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34D399;
+                    {% elif msg.tags == 'warning' %}background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #FBBF24;
+                    {% else %}background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #F87171;{% endif %}">
+                    {{ msg }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Tarjeta del Formulario de Carga -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display: grid; gap: 1.5rem;">
+                <div style="border: 2px dashed var(--border); border-radius: 10px; padding: 2.5rem; text-align: center; background: rgba(15, 23, 42, 0.4);">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
+                    <label for="id_file" style="font-weight: 600; font-size: 1.1rem; color: #F8FAFC; display: block; margin-bottom: 0.5rem; cursor: pointer;">
+                        Selecciona o arrastra el archivo Excel de llamadas
+                    </label>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+                        Formatos soportados: <strong>.xlsx, .xls</strong> (Detección automática de columnas de telefonía)
+                    </p>
+                    <input type="file" name="file" id="id_file" required accept=".xlsx, .xls"
+                           style="background: #0F172A; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 6px; color: #F8FAFC; cursor: pointer;">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                    <button type="submit" style="background: #2563EB; hover: #1D4ED8; color: white; padding: 0.75rem 2rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s;">
+                        🚀 Procesar y Calcular TMO
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Archivos Recientes -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #F8FAFC; margin-bottom: 1rem;">
+            📜 Historial de Archivos Ingestados
+        </h3>
+        {% if recent_files %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                            <th style="padding: 0.75rem;">Archivo</th>
+                            <th style="padding: 0.75rem;">Fecha Ingesta</th>
+                            <th style="padding: 0.75rem; text-align: center;">Filas Totales</th>
+                            <th style="padding: 0.75rem; text-align: center;">Válidas</th>
+                            <th style="padding: 0.75rem; text-align: center;">Duplicados</th>
+                            <th style="padding: 0.75rem; text-align: center;">Estado</th>
+                            <th style="padding: 0.75rem; text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in recent_files %}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.75rem; font-weight: 600; color: #F8FAFC;">{{ f.filename }}</td>
+                            <td style="padding: 0.75rem; color: var(--text-muted);">{{ f.created_at|date:"d/m/Y H:i" }}</td>
+                            <td style="padding: 0.75rem; text-align: center;">{{ f.total_rows }}</td>
+                            <td style="padding: 0.75rem; text-align: center; color: #34D399; font-weight: 600;">{{ f.valid_rows }}</td>
+                            <td style="padding: 0.75rem; text-align: center; color: #FBBF24;">{{ f.duplicate_rows }}</td>
+                            <td style="padding: 0.75rem; text-align: center;">
+                                <span style="background: rgba(16, 185, 129, 0.2); color: #34D399; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
+                                    {{ f.status }}
+                                </span>
+                            </td>
+                            <td style="padding: 0.75rem; text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                                <a href="{% url 'operations:file_detail' f.id %}" style="background: #334155; color: white; padding: 0.35rem 0.75rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 500;">
+                                    Ver Detalle
+                                </a>
+                                <a href="{% url 'operations:download_report_file' f.id %}" style="background: #1E3A8A; color: white; padding: 0.35rem 0.75rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 500;">
+                                    Descargar Excel
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 2rem;">
+                No se han registrado archivos aún. Sube el dataset de prueba para comenzar.
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

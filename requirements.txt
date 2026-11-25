@@ -1,0 +1,29 @@
+# =============================================================================
+# DEPENDENCIAS PRINCIPALES - PLATAFORMA EMPRESARIAL TMO EN PYTHON
+# =============================================================================
+
+# Framework Web y Servidor
+Django>=5.1,<6.0
+asgiref>=3.8.1
+sqlparse>=0.5.1
+tzdata>=2024.1
+
+# Visualización Analítica y Dashboards
+dash>=2.17.0
+dash-bootstrap-components>=1.6.0
+plotly>=5.24.0
+
+# Procesamiento Numérico y Manipulación de Excel
+pandas>=2.2.0
+numpy>=2.0.0
+openpyxl>=3.1.5
+
+# Automatización y Tareas en Segundo Plano
+apscheduler>=3.10.4
+
+# Gestión de Entorno y Configuración
+python-dotenv>=1.0.1
+
+# Pruebas Automatizadas
+pytest>=8.3.0
+pytest-django>=4.9.0

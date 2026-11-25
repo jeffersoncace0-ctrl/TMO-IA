@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Registros de Telefonía | TMO Enterprise{% endblock %}
+
+{% block content %}
+<div style="display: grid; gap: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.75rem; font-weight: 700; color: #FFFFFF;">📞 Registros de Llamadas</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Visualización paginada y filtrado granular de {{ total_count }} llamadas registradas.
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'operations:download_report_all' %}" style="background: #10B981; color: white; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                📥 Descargar Excel Consolidado
+            </a>
+        </div>
+    </div>
+
+    <!-- Barra de Filtros -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+        <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Buscar Asesor</label>
+                <input type="text" name="agent" value="{{ agent_query }}" placeholder="Código o Nombre..."
+                       style="width: 100%; background: #0F172A; border: 1px solid var(--border); padding: 0.5rem 0.75rem; border-radius: 6px; color: #F8FAFC;">
+            </div>
+            <div style="min-width: 160px;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Estado de Llamada</label>
+                <select name="status" style="width: 100%; background: #0F172A; border: 1px solid var(--border); padding: 0.5rem 0.75rem; border-radius: 6px; color: #F8FAFC;">
+                    <option value="">Todos los Estados</option>
+                    <option value="CONTESTADA" {% if status_filter == 'CONTESTADA' %}selected{% endif %}>CONTESTADA</option>
+                    <option value="PERDIDA" {% if status_filter == 'PERDIDA' %}selected{% endif %}>PERDIDA</option>
+                    <option value="ABANDONADA" {% if status_filter == 'ABANDONADA' %}selected{% endif %}>ABANDONADA</option>
+                </select>
+            </div>
+            <div style="min-width: 140px;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Validez</label>
+                <select name="valid" style="width: 100%; background: #0F172A; border: 1px solid var(--border); padding: 0.5rem 0.75rem; border-radius: 6px; color: #F8FAFC;">
+                    <option value="">Todas</option>
+                    <option value="true" {% if valid_filter == 'true' %}selected{% endif %}>Válidas</option>
+                    <option value="false" {% if valid_filter == 'false' %}selected{% endif %}>Inválidas</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" style="background: #2563EB; color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Llamadas -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 0.6rem;">ID Llamada</th>
+                    <th style="padding: 0.6rem;">Asesor</th>
+                    <th style="padding: 0.6rem;">Fecha/Hora</th>
+                    <th style="padding: 0.6rem;">Tipo</th>
+                    <th style="padding: 0.6rem;">Estado</th>
+                    <th style="padding: 0.6rem; text-align: right;">Duración</th>
+                    <th style="padding: 0.6rem; text-align: right;">Conversación</th>
+                    <th style="padding: 0.6rem; text-align: right;">Silencio</th>
+                    <th style="padding: 0.6rem; text-align: center;">Válido</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for call in page_obj %}
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 0.6rem; font-weight: 600; color: #60A5FA;">{{ call.call_id }}</td>
+                    <td style="padding: 0.6rem; color: #F8FAFC;">
+                        {% if call.agent %}{{ call.agent.code }} - {{ call.agent.name }}{% else %}<span style="color: #F87171;">Sin Asesor</span>{% endif %}
+                    </td>
+                    <td style="padding: 0.6rem; color: var(--text-muted);">{{ call.call_datetime|date:"d/m/Y H:i:s"|default:"-" }}</td>
+                    <td style="padding: 0.6rem;">{{ call.call_type }}</td>
+                    <td style="padding: 0.6rem;">
+                        <span style="font-weight: 600; {% if call.call_status == 'CONTESTADA' %}color: #34D399;{% else %}color: #F87171;{% endif %}">
+                            {{ call.call_status }}
+                        </span>
+                    </td>
+                    <td style="padding: 0.6rem; text-align: right; font-weight: 700; color: #F8FAFC;">{{ call.total_duration_seconds }}s</td>
+                    <td style="padding: 0.6rem; text-align: right; color: var(--text-muted);">{{ call.talk_time_seconds }}s</td>
+                    <td style="padding: 0.6rem; text-align: right; color: var(--text-muted);">{{ call.silence_time_seconds }}s</td>
+                    <td style="padding: 0.6rem; text-align: center;">
+                        {% if call.is_valid %}
+                            <span style="color: #34D399; font-weight: 700;">✓</span>
+                        {% else %}
+                            <span style="color: #F87171; font-weight: 700;" title="{{ call.validation_error }}">✗</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        No se encontraron llamadas que coincidan con los filtros aplicados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginación -->
+        {% if page_obj.has_other_pages %}
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&agent={{ agent_query }}&status={{ status_filter }}&valid={{ valid_filter }}"
+                   style="background: #334155; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">
+                    &laquo; Anterior
+                </a>
+            {% endif %}
+
+            <span style="padding: 0.4rem 0.8rem; color: var(--text-muted); font-size: 0.85rem;">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&agent={{ agent_query }}&status={{ status_filter }}&valid={{ valid_filter }}"
+                   style="background: #334155; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">
+                    Siguiente &raquo;
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

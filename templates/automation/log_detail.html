@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Auditoría #{{ log.id }} | TMO Enterprise{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 1000px; margin: 0 auto;">
+
+    <!-- Barra de Navegación Superior -->
+    <div>
+        <a href="{% url 'automation:panel' %}" style="color: #60A5FA; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+            ← Volver al Panel de Automatizaciones
+        </a>
+    </div>
+
+    <!-- Tarjeta Principal del Log -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; color: #F8FAFC;">
+                    Auditoría #{{ log.id }}: {{ log.job_name }}
+                </h2>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                    Iniciada el {{ log.started_at|date:"Y-m-d H:i:s" }} | Finalizada el {{ log.finished_at|date:"Y-m-d H:i:s" }} (Duración: {{ log.duration_seconds }} s)
+                </div>
+            </div>
+            <div>
+                {% if log.status == 'SUCCESS' %}
+                    <span style="background: #065F46; color: #34D399; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem;">EXITOSO</span>
+                {% elif log.status == 'WARNING' %}
+                    <span style="background: #78350F; color: #FBBF24; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem;">ADVERTENCIA</span>
+                {% elif log.status == 'RUNNING' %}
+                    <span style="background: #1E3A8A; color: #60A5FA; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem;">EN EJECUCIÓN</span>
+                {% else %}
+                    <span style="background: #7F1D1D; color: #F87171; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem;">FALLIDO</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Métricas del Corte -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Llamadas Procesadas</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #F8FAFC; margin-top: 0.25rem;">{{ log.records_processed }}</div>
+            </div>
+            <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Asesores Evaluados</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #F8FAFC; margin-top: 0.25rem;">{{ log.agents_evaluated }}</div>
+            </div>
+            <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">TMO Global Ponderado</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #60A5FA; margin-top: 0.25rem;">{{ log.global_weighted_tmo }} min</div>
+            </div>
+            <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Asesores Críticos</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: {% if log.critical_agents > 0 %}#F87171{% else %}#34D399{% endif %}; margin-top: 0.25rem;">{{ log.critical_agents }}</div>
+            </div>
+        </div>
+
+        <!-- Resumen Ejecutivo -->
+        <div style="margin-bottom: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #F8FAFC; margin-bottom: 0.5rem;">Resumen de la Ejecución</h4>
+            <div style="background: #0F172A; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-size: 0.95rem; color: #E2E8F0; line-height: 1.6;">
+                {{ log.summary|linebreaks }}
+            </div>
+        </div>
+
+        <!-- Información de Correo y Archivos Generados -->
+        <div style="margin-bottom: 1.5rem; background: #0F172A; border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #F8FAFC; margin-bottom: 0.5rem;">Despacho de Alerta Corporativa (SMTP)</h4>
+            <div style="font-size: 0.9rem; color: #94A3B8;">
+                <div><strong>Estado de Envío:</strong> {% if log.email_sent %}<span style="color: #34D399; font-weight: 700;">Despachado exitosamente</span>{% else %}<span style="color: #F87171; font-weight: 700;">No enviado o fallido</span>{% endif %}</div>
+                <div style="margin-top: 0.25rem;"><strong>Detalle del Despacho:</strong> {{ log.email_recipient }}</div>
+                {% if log.report_file_path %}
+                <div style="margin-top: 0.75rem;">
+                    <strong>Reporte Generado:</strong> <code style="color: #60A5FA;">{{ log.report_file_path }}</code>
+                    <div style="margin-top: 0.5rem;">
+                        <a href="{% url 'automation:download_report' log.id %}" style="background: #065F46; color: #A7F3D0; text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem;">
+                            📥 Descargar Reporte Excel Oficial (4 Pestañas)
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Traza de Error (Si ocurrió fallo) -->
+        {% if log.error_trace %}
+        <div>
+            <h4 style="font-size: 1rem; font-weight: 700; color: #F87171; margin-bottom: 0.5rem;">Traza de Error Técnica (Debug)</h4>
+            <pre style="background: #000000; color: #FCA5A5; padding: 1rem; border-radius: 8px; font-size: 0.8rem; overflow-x: auto; border: 1px solid #7F1D1D;">{{ log.error_trace }}</pre>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

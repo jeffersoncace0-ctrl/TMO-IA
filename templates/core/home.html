@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio | Plataforma Inteligente TMO{% endblock %}
+
+{% block content %}
+<div style="display: grid; gap: 2rem;">
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem; text-align: center;">
+        <span style="background: rgba(59, 130, 246, 0.1); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">
+            Arquitectura 100% Python
+        </span>
+        <h2 style="font-size: 2.25rem; font-weight: 800; margin: 1rem 0 0.5rem; color: #FFFFFF;">
+            Plataforma Inteligente de Control de TMO y Automatización
+        </h2>
+        <p style="color: var(--text-muted); max-width: 800px; margin: 0 auto 2rem; font-size: 1.1rem;">
+            Solución empresarial de alto rendimiento para centros de contacto BPO. Ingesta determinista de registros de llamadas, cálculo de TMO ponderado sin sesgo, analítica reactiva con Dash y alertas horarias automáticas mediante APScheduler.
+        </p>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'operations:upload_excel' %}" style="background: #2563EB; color: white; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+                📥 Cargar Archivo Excel
+            </a>
+            <a href="{% url 'analytics:dashboard' %}" style="background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border); color: #F8FAFC; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                📈 Explorar Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">⚙️</div>
+            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">Django 5 Backend</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Modelos de base de datos relacionales, autenticación, pipeline de enrutamiento y administración segura.
+            </p>
+        </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📊</div>
+            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">Dash + Plotly</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Visualizaciones interactivas de TMO, filtrado dinámico y gráficos vectoriales nativos sin JavaScript manual.
+            </p>
+        </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">⚡</div>
+            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">Pandas Vectorizado</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Saneamiento de datasets, cálculo ponderado de TMO y detección de outliers mediante Z-score > 2.0.
+            </p>
+        </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;">
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">⏰</div>
+            <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #F8FAFC;">APScheduler</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Programación de reportes horarios, generación de libros de 4 hojas en Excel y despacho de alertas SMTP.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

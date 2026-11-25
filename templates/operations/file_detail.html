@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Lote | {{ file.filename }}{% endblock %}
+
+{% block content %}
+<div style="display: grid; gap: 2rem;">
+    <!-- Encabezado con Botón de Descarga -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <a href="{% url 'operations:upload_excel' %}" style="color: var(--text-muted); text-decoration: none;">&larr; Volver</a>
+                <h2 style="font-size: 1.75rem; font-weight: 700; color: #FFFFFF;">{{ file.filename }}</h2>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                Procesado el {{ file.created_at|date:"d/m/Y H:i" }} | SHA-256: <code style="color: #60A5FA;">{{ file.sha256_hash|slice:":16" }}...</code>
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{% url 'operations:download_report_file' file.id %}" style="background: #10B981; color: white; padding: 0.65rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+                📊 Descargar Reporte Oficial (4 Hojas con Gráficos)
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 Tarjetas de KPIs Clave del Lote -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Llamadas Válidas</span>
+            <div style="font-size: 1.85rem; font-weight: 800; color: #34D399; margin-top: 0.25rem;">{{ kpis.total_calls|default:"0" }}</div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Contestadas: {{ kpis.answered_calls }} | Perdidas: {{ kpis.lost_calls }}</span>
+        </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">TMO Global Ponderado</span>
+            <div style="font-size: 1.85rem; font-weight: 800; color: #60A5FA; margin-top: 0.25rem;">{{ kpis.weighted_tmo_global|default:"0.0" }}s</div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Meta: &le; {{ threshold }}s</span>
+        </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Cumplimiento Asesores</span>
+            <div style="font-size: 1.85rem; font-weight: 800; color: #FBBF24; margin-top: 0.25rem;">{{ kpis.compliance_rate|default:"0.0" }}%</div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">{{ kpis.approved_agents }} de {{ kpis.total_agents }} aprobados</span>
+        </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;">
+            <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Promedio Silencio</span>
+            <div style="font-size: 1.85rem; font-weight: 800; color: #A78BFA; margin-top: 0.25rem;">{{ kpis.average_silence_pct|default:"0.0" }}%</div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Casos atípicos (Z &gt; 2.0): {{ kpis.outliers_count }}</span>
+        </div>
+    </div>
+
+    <!-- Tabla de Clasificación de Asesores -->
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #F8FAFC; margin-bottom: 1rem;">
+            👥 Rendimiento por Asesor y Cumplimiento de TMO
+        </h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                        <th style="padding: 0.75rem;">Código</th>
+                        <th style="padding: 0.75rem;">Nombre del Asesor</th>
+                        <th style="padding: 0.75rem; text-align: center;">Llamadas</th>
+                        <th style="padding: 0.75rem; text-align: center;">TMO (s)</th>
+                        <th style="padding: 0.75rem; text-align: center;">% Silencio</th>
+                        <th style="padding: 0.75rem; text-align: center;">Exceso</th>
+                        <th style="padding: 0.75rem; text-align: center;">Z-Score</th>
+                        <th style="padding: 0.75rem; text-align: center;">Estado Operativo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agents %}
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 0.75rem; font-weight: 600; color: #F8FAFC;">{{ a.agent_code }}</td>
+                        <td style="padding: 0.75rem; color: #F8FAFC;">{{ a.agent_name }}</td>
+                        <td style="padding: 0.75rem; text-align: center;">{{ a.total_calls }}</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: 700;
+                            {% if a.status == 'APROBADO' %}color: #34D399;
+                            {% elif a.status == 'EN OBSERVACIÓN' %}color: #FBBF24;
+                            {% else %}color: #F87171;{% endif %}">
+                            {{ a.tmo }}s
+                        </td>
+                        <td style="padding: 0.75rem; text-align: center;">{{ a.silence_percentage }}%</td>
+                        <td style="padding: 0.75rem; text-align: center;">+{{ a.excess_seconds }}s</td>
+                        <td style="padding: 0.75rem; text-align: center;">{{ a.z_score }}</td>
+                        <td style="padding: 0.75rem; text-align: center;">
+                            <span style="padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;
+                                {% if a.status == 'APROBADO' %}background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4);
+                                {% elif a.status == 'EN OBSERVACIÓN' %}background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4);
+                                {% else %}background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.4);{% endif %}">
+                                {{ a.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            No hay métricas disponibles para este lote.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
