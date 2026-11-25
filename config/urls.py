@@ -13,8 +13,11 @@ urlpatterns = [
     # Enrutamiento de Módulos de la Aplicación
     path('', include('apps.core.urls', namespace='core')),
     path('operaciones/', include('apps.operations.urls', namespace='operations')),
+    path('operacion/', include('apps.operations.urls')),
     path('analitica/', include('apps.analytics.urls', namespace='analytics')),
+    path('analiticas/', include('apps.analytics.urls')),
     path('automatizacion/', include('apps.automation.urls', namespace='automation')),
+    path('automatizaciones/', include('apps.automation.urls')),
 ]
 
 # Servir archivos estáticos y multimedia durante desarrollo
